@@ -1,23 +1,23 @@
 services:
   frontend:
     build: ./frontend
-    container_name: portfolio_frontend
+    container_name: diagram_frontend
     depends_on:
       - backend
     restart: unless-stopped
     env_file:
       - ./frontend/.env
     networks:
-      - portfolio_website
+      - diagram_website
   backend:
     build: ./backend
-    container_name: portfolio_backend
+    container_name: diagram_backend
     restart: unless-stopped
     env_file:
-      - ./frontend/.env
+      - ./backend/.env
     networks:
-      - portfolio_website
+      - diagram_website
 
 networks:
-  portfolio_website:
+  diagram_website:
     driver: bridge
