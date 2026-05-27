@@ -3,14 +3,11 @@ import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-grpc";
 
-// The engine automatically registers process-level environment variables
 const sdk = new NodeSDK({
-  // Modern configuration reads OTEL_SERVICE_NAME directly from your .env
   traceExporter: new OTLPTraceExporter(),
   metricExporter: new OTLPMetricExporter(),
   instrumentations: [
     getNodeAutoInstrumentations({
-      // Keeps your console clean by removing heavy file-system logs
       "@opentelemetry/instrumentation-fs": { enabled: false },
     }),
   ],
@@ -23,7 +20,6 @@ try {
   console.error("Critical Error bootstrapping OpenTelemetry SDK:", error);
 }
 
-// Graceful container cleanup handler
 process.on("SIGTERM", () => {
   sdk
     .shutdown()
