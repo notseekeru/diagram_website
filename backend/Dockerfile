@@ -18,7 +18,7 @@ FROM base AS dev
 
 EXPOSE 5000
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev:otel"]
 
 # --- PRUNE // RUN AS NODE USER
 FROM base AS prune
@@ -41,4 +41,4 @@ COPY --from=prune /app .
 
 USER node
 
-CMD ["node", "./dist/server.js"]
+CMD ["npm", "run", "start:otel"]
