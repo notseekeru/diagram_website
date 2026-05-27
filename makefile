@@ -20,7 +20,7 @@ dev-buildcache:
 	$(DEV_CMD) build --no-cache
 
 dev-down:
-	$(DEV_CMD) down -v --rmi local
+	$(DEV_CMD) down -v
 
 dev-up:
 	$(DEV_CMD) up -d
