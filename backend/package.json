@@ -17,7 +17,6 @@
     "@opentelemetry/auto-instrumentations-node": "0.76.0",
     "@opentelemetry/exporter-metrics-otlp-grpc": "0.218.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "0.218.0",
-    "@opentelemetry/resources": "2.7.1",
     "@opentelemetry/sdk-node": "0.218.0",
     "@opentelemetry/semantic-conventions": "1.40.0",
     "cors": "2.8.5",
