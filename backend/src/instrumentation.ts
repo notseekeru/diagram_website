@@ -1,31 +1,40 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-grpc";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+
+// Use the new v2.x factory function instead of the Resource class
+import { resourceFromAttributes } from "@opentelemetry/resources";
+
+import {
+  SEMRESATTRS_SERVICE_NAME,
+  SEMRESATTRS_DEPLOYMENT_ENVIRONMENT,
+} from "@opentelemetry/semantic-conventions";
 
 const sdk = new NodeSDK({
-  traceExporter: new OTLPTraceExporter(),
-  metricExporter: new OTLPMetricExporter(),
-  instrumentations: [
-    getNodeAutoInstrumentations({
-      "@opentelemetry/instrumentation-fs": { enabled: false },
+  // Instantiate using the new functional API approach
+  resource: resourceFromAttributes({
+    [SEMRESATTRS_SERVICE_NAME]: "diagram-backend",
+    [SEMRESATTRS_DEPLOYMENT_ENVIRONMENT]: process.env.NODE_ENV || "development",
+  }),
+  traceExporter: new OTLPTraceExporter({
+    url: process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT,
+  }),
+  metricReader: new PeriodicExportingMetricReader({
+    exporter: new OTLPMetricExporter({
+      url: process.env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
     }),
-  ],
+  }),
+  instrumentations: [getNodeAutoInstrumentations()],
 });
 
-try {
-  sdk.start();
-  console.log("Telemetry initialized successfully [gRPC Pipeline Active]");
-} catch (error) {
-  console.error("Critical Error bootstrapping OpenTelemetry SDK:", error);
-}
+sdk.start();
 
 process.on("SIGTERM", () => {
   sdk
     .shutdown()
-    .then(() =>
-      console.log("Telemetry processing engine flushed and terminated."),
-    )
-    .catch((error) => console.error("Error during telemetry shutdown:", error))
+    .then(() => console.log("Telemetry SDK shut down successfully"))
+    .catch((error) => console.log("Error shutting down SDK", error))
     .finally(() => process.exit(0));
 });
