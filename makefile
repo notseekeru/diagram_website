@@ -3,10 +3,10 @@ PROD_CMD = docker compose -p diagram-prod -f compose.yml -f compose.prod.yml
 
 exec:
 	@echo "**---------Checking Frontend...-----------**"
-	docker exec -t diagram_frontend_dev sh -c "npm run lint && npm run typecheck && npm audit && npm outdated || true && npm prune"
+	docker exec -t diagram_frontend_dev sh -c "(npm run lint && npm run typecheck && npm audit) && npm outdated || true"
 	
 	@echo "**---------Checking Backend...-----------**"
-	docker exec -t diagram_backend_dev sh -c "npm run lint && npm run typecheck && npm audit && npm outdated || true && npm prune"
+	docker exec -t diagram_backend_dev sh -c "(npm run lint && npm run typecheck && npm audit) && npm outdated || true"
 	
 git-branch-d:
 	git checkout main
@@ -27,9 +27,6 @@ dev-up:
 
 dev-logs:
 	$(DEV_CMD) logs -f
-
-dev-down:
-	$(DEV_CMD) down -v --rmi local
 
 prod-build:
 	$(PROD_CMD) build
