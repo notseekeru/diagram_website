@@ -4,11 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        surface: "#111821",
-        border: "#2a3442",
-        accent: "#8dd3ff",
-        accentSecondary: "#5fb9d8",
-        muted: "#8f9bb0",
+        surface: "#0a0a0a",
+        border: "#262626",
+        accent: "#ffffff",
+        accentSecondary: "#a3a3a3",
+        muted: "#737373",
       },
       fontFamily: {
         sans: ["Space Grotesk", "system-ui", "sans-serif"],
@@ -16,7 +16,7 @@ export default {
       },
       backgroundImage: {
         "grid-pattern":
-          "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)",
       },
       backgroundSize: {
         "grid-size": "40px 40px",
