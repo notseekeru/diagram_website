@@ -5,6 +5,10 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "dev:otel": "tsx watch --import ./src/instrumentation.ts src/server.ts",
+    "migrate": "node-pg-migrate",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings=0",
@@ -24,6 +28,8 @@
     "express": "^4.22.2",
     "express-rate-limit": "7.5.0",
     "helmet": "8.0.0",
+    "node-pg-migrate": "^8.0.4",
+    "pg": "^8.16.0",
     "picomatch": "4.0.4"
   },
   "devDependencies": {

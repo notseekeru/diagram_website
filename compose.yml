@@ -2,6 +2,8 @@ services:
   frontend:
     build: ./frontend
     container_name: diagram_frontend
+    ports:
+      - "5173:5173"
     depends_on:
       - backend
     restart: unless-stopped
@@ -12,12 +14,33 @@ services:
   backend:
     build: ./backend
     container_name: diagram_backend
+    ports:
+      - "5000:5000"
     restart: unless-stopped
     env_file:
       - ./backend/.env
+    depends_on:
+      - postgres
+    networks:
+      - obs-network
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: diagramdb
+      POSTGRES_USER: diagram
+      POSTGRES_PASSWORD: diagram
+    volumes:
+      - diagram_postgres_data:/var/lib/postgresql/data
     networks:
       - obs-network
 
 networks:
   obs-network:
     external: true
+
+volumes:
+  diagram_postgres_data:
