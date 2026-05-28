@@ -12,8 +12,12 @@
   }
 
   body {
-    @apply bg-zinc-950 text-zinc-100 font-sans antialiased;
-    background-color: #0d0d0d;
+    @apply text-slate-100 font-sans antialiased;
+    background-color: #0b121a;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
   }
 
   ::-webkit-scrollbar {
@@ -21,39 +25,40 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #0d0d0d;
+    background: #0b121a;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #252525;
+    background: #1f2833;
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #00d9ff44;
+    background: #8dd3ff55;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #8dd3ff 0%, #c9f1ff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .glow-accent {
-    box-shadow: 0 0 20px rgba(0, 217, 255, 0.15);
+    box-shadow: 0 0 20px rgba(141, 211, 255, 0.18);
   }
 
   .glow-accent-hover:hover {
-    box-shadow: 0 0 30px rgba(0, 217, 255, 0.25);
+    box-shadow: 0 0 30px rgba(141, 211, 255, 0.28);
   }
 
   .border-gradient {
     border: 1px solid transparent;
-    background: linear-gradient(#161616, #161616) padding-box,
-      linear-gradient(135deg, #00d9ff33, #7c3aed33) border-box;
+    background:
+      linear-gradient(#111821, #111821) padding-box,
+      linear-gradient(135deg, #8dd3ff33, #5fb9d833) border-box;
   }
 }
 
@@ -127,12 +132,14 @@
   @apply bg-transparent p-0 text-zinc-300 text-sm leading-relaxed;
 }
 
-.blog-prose .blog-code-block code[class*='language-'],
-.blog-prose .blog-code-block pre[class*='language-'] {
+.blog-prose .blog-code-block code[class*="language-"],
+.blog-prose .blog-code-block pre[class*="language-"] {
   color: #f8f8f2;
   background: transparent;
   text-shadow: none;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
   direction: ltr;
   text-align: left;
   white-space: pre;
@@ -203,7 +210,7 @@
   font-weight: 700;
 }
 
-.blog-prose .blog-code-block .token[class~='italic'] {
+.blog-prose .blog-code-block .token[class~="italic"] {
   font-style: italic;
 }
 

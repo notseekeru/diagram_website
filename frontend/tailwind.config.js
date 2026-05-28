@@ -4,19 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        surface: "#161616",
-        border: "#252525",
-        accent: "#00d9ff",
-        accentPurple: "#7c3aed",
-        muted: "#888888",
+        surface: "#111821",
+        border: "#2a3442",
+        accent: "#8dd3ff",
+        accentSecondary: "#5fb9d8",
+        muted: "#8f9bb0",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        sans: ["Space Grotesk", "system-ui", "sans-serif"],
+        mono: ["IBM Plex Mono", "monospace"],
       },
       backgroundImage: {
         "grid-pattern":
-          "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
+          "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
       },
       backgroundSize: {
         "grid-size": "40px 40px",
