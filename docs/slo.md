@@ -1,6 +1,7 @@
 ### SLI (Service Level Indicator):
 
 - http_server_duration_seconds (the total time taken for an API request).
+  - Emitted by the backend histogram with labels: http.route, http.method, http.status_code
 
 ### SLO (Service Level Objective):
 

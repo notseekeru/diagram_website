@@ -15,3 +15,14 @@ This repository contains the source code for my personal mermaid diagrams. I use
 - Express: A minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications, used to serve the diagrams.
 - PostgreSQL: A powerful, open-source object-relational database system that uses and extends the SQL language, used for storing diagram data and user information.
 - Docker: A platform for developing, shipping, and running applications in containers, used to containerize the application for easy deployment.
+
+## Local Development
+
+1. Copy `backend/.env.example` to `backend/.env` and set `API_KEY` and `DATABASE_URL`.
+2. Copy `frontend/.env.example` to `frontend/.env` and set `VITE_BACKEND_URL`.
+3. Start the stack: `make dev-up`.
+4. Run migrations once: `docker exec -t diagram_backend_dev npm run migrate:up`.
+
+## API Authentication
+
+All endpoints require `X-API-Key`. See [docs/api-auth.md](docs/api-auth.md).
