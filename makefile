@@ -7,6 +7,9 @@ exec:
 	
 	@echo "**---------Checking Backend...-----------**"
 	docker exec -t diagram_backend_dev sh -c "(npm run lint && npm run typecheck && npm audit) && npm outdated || true"
+
+migrate-up:
+	docker exec -t diagram_backend_dev npm run migrate:up
 	
 git-branch-d:
 	git checkout main
