@@ -433,6 +433,15 @@ export default function App() {
     [api, applyServerDiagram, hasApiKey, setStatusMessage],
   );
 
+  const resetEditor = useCallback(() => {
+    setSelectedId(null);
+    setTitle(DEFAULT_TITLE);
+    setMermaidText(defaultMermaid);
+    lastSavedPayload.current = "";
+    setLastAutoSave(null);
+    setStatusMessage("info", "New draft ready.");
+  }, [setStatusMessage]);
+
   const deleteDiagram = useCallback(async () => {
     if (!hasApiKey || !selectedId) {
       setStatusMessage("error", "Select a diagram to delete.");
@@ -458,16 +467,14 @@ export default function App() {
     } finally {
       setIsBusy(false);
     }
-  }, [api, fetchDiagrams, hasApiKey, selectedId, setStatusMessage]);
-
-  const resetEditor = useCallback(() => {
-    setSelectedId(null);
-    setTitle(DEFAULT_TITLE);
-    setMermaidText(defaultMermaid);
-    lastSavedPayload.current = "";
-    setLastAutoSave(null);
-    setStatusMessage("info", "New draft ready.");
-  }, [setStatusMessage]);
+  }, [
+    api,
+    fetchDiagrams,
+    hasApiKey,
+    selectedId,
+    setStatusMessage,
+    resetEditor,
+  ]);
 
   const statusStyles: Record<StatusTone, string> = {
     info: "border-border bg-surface/70 text-slate-200",
