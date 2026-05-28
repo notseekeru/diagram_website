@@ -1,4 +1,3 @@
-import { trace } from "@opentelemetry/api";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
@@ -13,7 +12,8 @@ import {
 // 1. Initialize the OpenTelemetry SDK first
 const sdk = new NodeSDK({
   resource: resourceFromAttributes({
-    [SEMRESATTRS_SERVICE_NAME]: "diagram-backend",
+    [SEMRESATTRS_SERVICE_NAME]:
+      process.env.OTEL_SERVICE_NAME || "diagram-backend",
     [SEMRESATTRS_DEPLOYMENT_ENVIRONMENT]: process.env.NODE_ENV || "development",
   }),
   traceExporter: new OTLPTraceExporter({
@@ -30,23 +30,11 @@ const sdk = new NodeSDK({
 // 2. Start the SDK to bind the global tracer provider
 sdk.start();
 
-// 3. Create your custom spans AFTER the SDK is active
-const tracer = trace.getTracer("my-custom-tracer");
-
-console.log("Starting custom span...");
-tracer.startActiveSpan("THE_DIDDY_BLUD_MANUAL", (span) => {
-  console.log("Triggering the validation span...");
-  span.setAttribute("user.action", "manual_validation");
-  span.end();
-});
-
-console.log("Smoke test complete.");
-
-// 4. Handle graceful shutdown
+// 3. Handle graceful shutdown
 process.on("SIGTERM", () => {
   sdk
     .shutdown()
     .then(() => console.log("Telemetry SDK shut down successfully"))
-    .catch((error) => console.log("Error shutting down SDK", error))
+    .catch((error: unknown) => console.log("Error shutting down SDK", error))
     .finally(() => process.exit(0));
 });
