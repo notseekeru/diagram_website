@@ -63,7 +63,7 @@ const corsOptions = {
   },
   // CRITICAL: Must explicitly include any custom headers you want allowed
   allowedHeaders: ["Content-Type", "X-API-Key"],
-  methods: ["GET", "POST", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   maxAge: 600,
 };
 
@@ -125,6 +125,9 @@ app.get("/healthz", (_req: Request, res: Response) => {
 });
 
 app.use("/api", (req: Request, res: Response, next: NextFunction) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
   const providedKey = req.header("X-API-Key") ?? "";
   if (!isValidApiKey(providedKey)) {
     return res.status(401).json({ error: "Invalid API key" });
@@ -200,6 +203,47 @@ app.post("/api/save-diagram", async (req: Request, res: Response) => {
   }
 });
 
+app.put("/api/diagrams/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const title = normalizeTitle(req.body?.title);
+  const mermaidText = normalizeMermaid(req.body?.mermaidText);
+
+  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+    return res.status(400).json({ error: "Invalid diagram id" });
+  }
+
+  if (!mermaidText) {
+    return res.status(400).json({ error: "mermaidText is required" });
+  }
+
+  if (mermaidText.length > 20_000) {
+    return res.status(413).json({ error: "mermaidText is too large" });
+  }
+
+  try {
+    const result = await pool.query<DiagramRow>(
+      `
+        UPDATE diagrams
+        SET title = $1,
+            mermaid_text = $2,
+            updated_at = NOW()
+        WHERE id = $3
+        RETURNING id, title, mermaid_text, created_at, updated_at
+      `,
+      [title, mermaidText, id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Diagram not found" });
+    }
+
+    return res.json({ diagram: result.rows[0] });
+  } catch (error) {
+    console.error("Failed to update diagram", error);
+    return res.status(500).json({ error: "Failed to update diagram" });
+  }
+});
+
 app.get("/api/get-diagram/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -247,6 +291,30 @@ app.get("/api/diagrams", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Failed to list diagrams", error);
     return res.status(500).json({ error: "Failed to list diagrams" });
+  }
+});
+
+app.delete("/api/diagrams/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+    return res.status(400).json({ error: "Invalid diagram id" });
+  }
+
+  try {
+    const result = await pool.query<{ id: string }>(
+      "DELETE FROM diagrams WHERE id = $1 RETURNING id",
+      [id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Diagram not found" });
+    }
+
+    return res.status(204).send();
+  } catch (error) {
+    console.error("Failed to delete diagram", error);
+    return res.status(500).json({ error: "Failed to delete diagram" });
   }
 });
 
