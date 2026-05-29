@@ -8,7 +8,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { metrics } from "@opentelemetry/api";
 import { Pool } from "pg";
 
 dotenv.config();
@@ -41,7 +40,7 @@ if (Number.isFinite(trustProxyHops) && trustProxyHops > 0) {
 
 app.disable("x-powered-by");
 
-// 1. CORS MUST come first so it can catch and answer OPTIONS requests immediately
+// 1. CORS Management Configuration
 const corsOptions = {
   origin: (
     origin: string | undefined,
@@ -61,16 +60,14 @@ const corsOptions = {
 
     return callback(null, false);
   },
-  // CRITICAL: Must explicitly include any custom headers you want allowed
   allowedHeaders: ["Content-Type", "X-API-Key"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   maxAge: 600,
 };
 
 app.use(cors(corsOptions));
-// Remove app.options("/api/*", ...) as app.use(cors()) already handles all paths globally.
 
-// 2. Helmet configuration needs to accept your cross-origin setup
+// 2. Security Headers Layout
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -88,28 +85,10 @@ app.use(
   }),
 );
 
+// 3. Database Management Setup
 const pool = new Pool({ connectionString: databaseUrl });
 pool.on("error", (error: Error) => {
   console.error("Unexpected Postgres error", error);
-});
-
-const meter = metrics.getMeter("diagram-backend");
-const requestDuration = meter.createHistogram("http_server_duration_seconds", {
-  unit: "s",
-  description: "HTTP request duration in seconds",
-});
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const start = process.hrtime.bigint();
-  res.on("finish", () => {
-    const durationNs = process.hrtime.bigint() - start;
-    requestDuration.record(Number(durationNs) / 1e9, {
-      "http.method": req.method,
-      "http.route": req.route?.path ?? req.path,
-      "http.status_code": res.statusCode,
-    });
-  });
-  next();
 });
 
 const isValidApiKey = (provided: string) => {
@@ -120,6 +99,7 @@ const isValidApiKey = (provided: string) => {
   return crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(apiKey));
 };
 
+// 4. Inbound Core Web Server Application API Routing Handlers
 app.get("/healthz", (_req: Request, res: Response) => {
   res.json({ status: "ok" });
 });
@@ -149,7 +129,6 @@ const normalizeTitle = (value: unknown) => {
   if (typeof value !== "string") {
     return "Untitled Diagram";
   }
-
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : "Untitled Diagram";
 };
@@ -158,7 +137,6 @@ const normalizeMermaid = (value: unknown) => {
   if (typeof value !== "string") {
     return "";
   }
-
   return value.trim();
 };
 
@@ -318,6 +296,7 @@ app.delete("/api/diagrams/:id", async (req: Request, res: Response) => {
   }
 });
 
+// 5. Explicit Centralized Catch-All Error Handling Middleware
 app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error("Unhandled error", error);
   res.status(500).json({ error: "Unexpected server error" });
@@ -327,8 +306,9 @@ const server = app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`);
 });
 
+// 6. Graceful System Eviction Strategy Execution
 const shutdown = async () => {
-  console.log("Shutting down...");
+  console.log("Shutting down Application Server runtime execution layer...");
   server.close();
   await pool.end();
 };
