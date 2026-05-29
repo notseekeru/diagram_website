@@ -86,9 +86,10 @@ app.use(
 );
 
 // 3. Database Management Setup
-const pool = new Pool({ connectionString: databaseUrl });
-pool.on("error", (error: Error) => {
-  console.error("Unexpected Postgres error", error);
+const pool = new Pool({
+  connectionString: databaseUrl,
+  connectionTimeoutMillis: 5000, // Kill the wait after 5 seconds
+  max: 10, // Limit the number of concurrent connections
 });
 
 const isValidApiKey = (provided: string) => {
