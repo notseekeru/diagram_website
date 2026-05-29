@@ -27,11 +27,11 @@ docker stop diagram_postgres
 ### Loop at /api/diagrams with invalid key (Status code)
 
 ```bash
-while true; do curl -H "X-API-Key: invalid_key" -s -o /dev/null -w "%{http_code}\n" http://localhost:5000/api/diagrams; sleep 0.5; done
+START=$SECONDS; while [ $((SECONDS - START)) -lt 10 ]; do curl -H "X-API-Key: invalid_key" -s -o /dev/null -w "%{http_code}\n" http://localhost:5000/api/diagrams; sleep 0.5; done
 ```
 
 ### Loop at /api/diagrams with valid key (Status code)
 
 ```bash
-while true; do curl -H "X-API-Key: zxczxc" -s -o /dev/null -w "%{http_code}\n" http://localhost:5000/api/diagrams; sleep 0.5; done
+START=$SECONDS; while [ $((SECONDS - START)) -lt 10 ]; do curl -H "X-API-Key: zxczxc" -s -o /dev/null -w "%{http_code}\n" http://localhost:5000/api/diagrams; sleep 0.5; done
 ```

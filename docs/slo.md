@@ -1,7 +1,5 @@
 ## Current Status
 
-- MMTD: 2 minutes
-
 ### SLI (Service Level Indicator):
 
 - http_server_duration_seconds (the total time taken for an API request).
