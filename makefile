@@ -23,7 +23,7 @@ dev-buildcache:
 	$(DEV_CMD) build --no-cache
 
 dev-down:
-	$(DEV_CMD) down -v
+	$(DEV_CMD) down
 
 dev-up:
 	$(DEV_CMD) up -d
