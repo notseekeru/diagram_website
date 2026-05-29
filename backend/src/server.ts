@@ -86,7 +86,14 @@ app.use(
 );
 
 // 3. Database Management Setup
-const pool = new Pool({ connectionString: databaseUrl });
+export const pool = new Pool({
+  connectionString: databaseUrl,
+
+  connectionTimeoutMillis: 1500,
+  statement_timeout: 2000,
+  query_timeout: 2000,
+});
+
 pool.on("error", (error: Error) => {
   console.error("Unexpected Postgres error", error);
 });
