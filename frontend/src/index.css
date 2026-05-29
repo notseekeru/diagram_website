@@ -3,177 +3,37 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    box-sizing: border-box;
-  }
-  html {
-    scroll-behavior: smooth;
-  }
   body {
-    @apply text-zinc-200 font-sans antialiased;
-    background-color: #050505;
-  }
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #0d0d0d;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #262626;
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #404040;
+    @apply bg-surface text-slate-100 antialiased font-sans;
   }
 }
 
-@layer utilities {
-  .text-gradient {
-    background: linear-gradient(135deg, #ffffff 0%, #a3a3a3 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .glow-accent {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.03);
-  }
-  .glow-accent-hover:hover {
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.08);
-  }
-  .border-gradient {
-    border: 1px solid transparent;
-    background: linear-gradient(#0a0a0a, #0a0a0a) padding-box, 
-                linear-gradient(135deg, #262626, #171717) border-box;
-  }
-  .preview-grid {
-    background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), 
-                      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
+/* Strip Mermaid's default internal blue-gray fills and tie them to your config tokens */
+.clean-svg-output svg {
+  background-color: transparent !important;
+  max-width: 100%;
+  height: auto;
 }
 
-.blog-prose {
-  @apply text-zinc-400 leading-relaxed;
+/* Force Mermaid nodes to use your exact true-black surface and fine border colors */
+.clean-svg-output .node rect,
+.clean-svg-output .node circle,
+.clean-svg-output .node polygon,
+.clean-svg-output .node path {
+  fill: #0a0a0a !important; /* matches your theme surface */
+  stroke: #262626 !important; /* matches your theme border */
+  stroke-width: 1.5px !important;
 }
-.blog-prose h1 {
-  @apply text-2xl font-bold text-zinc-100 mt-10 mb-4;
+
+/* Tie edge arrows and lines to your accentSecondary configuration */
+.clean-svg-output .edgePath .path {
+  stroke: #a3a3a3 !important;
 }
-.blog-prose h2 {
-  @apply text-xl font-bold text-zinc-100 mt-10 mb-4;
+
+.clean-svg-output .label {
+  color: #ffffff !important;
 }
-.blog-prose h3 {
-  @apply text-lg font-semibold text-zinc-200 mt-8 mb-3;
-}
-.blog-prose h4, .blog-prose h5, .blog-prose h6 {
-  @apply text-base font-semibold text-zinc-200 mt-6 mb-2;
-}
-.blog-prose p {
-  @apply mb-5 text-[15px] leading-[1.8];
-}
-.blog-prose a {
-  @apply text-zinc-200 underline underline-offset-2 hover:text-white transition-colors;
-}
-.blog-prose strong {
-  @apply font-semibold text-zinc-100;
-}
-.blog-prose em {
-  @apply italic text-zinc-500;
-}
-.blog-prose ul {
-  @apply list-disc list-inside mb-5 space-y-1.5 text-[15px];
-}
-.blog-prose ol {
-  @apply list-decimal list-inside mb-5 space-y-1.5 text-[15px];
-}
-.blog-prose li {
-  @apply text-zinc-400;
-}
-.blog-prose blockquote {
-  @apply border-l-2 border-zinc-700 pl-4 py-1 my-5 text-zinc-500 italic;
-}
-.blog-prose hr {
-  @apply my-10 border-zinc-800;
-}
-.blog-prose code {
-  @apply font-mono text-sm bg-zinc-900 text-zinc-200 px-1.5 py-0.5 rounded border border-zinc-800;
-}
-.blog-prose .blog-code-block {
-  @apply bg-black border border-zinc-800 rounded-xl p-5 mb-5 overflow-x-auto;
-}
-.blog-prose .blog-code-block code {
-  @apply bg-transparent p-0 text-zinc-400 text-sm leading-relaxed border-none;
-}
-.blog-prose .blog-code-block code[class*="language-"], 
-.blog-prose .blog-code-block pre[class*="language-"] {
-  color: #e5e5e5;
-  background: transparent;
-  text-shadow: none;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  direction: ltr;
-  text-align: left;
-  white-space: pre;
-  word-spacing: normal;
-  word-break: normal;
-  line-height: 1.6;
-  tab-size: 2;
-  hyphens: none;
-}
-.blog-prose .blog-code-block .token.comment, 
-.blog-prose .blog-code-block .token.prolog, 
-.blog-prose .blog-code-block .token.doctype, 
-.blog-prose .blog-code-block .token.cdata {
-  color: #737373;
-}
-.blog-prose .blog-code-block .token.punctuation {
-  color: #a3a3a3;
-}
-.blog-prose .blog-code-block .token.property, 
-.blog-prose .blog-code-block .token.tag, 
-.blog-prose .blog-code-block .token.boolean, 
-.blog-prose .blog-code-block .token.number, 
-.blog-prose .blog-code-block .token.constant, 
-.blog-prose .blog-code-block .token.symbol, 
-.blog-prose .blog-code-block .token.deleted {
-  color: #e5e5e5;
-}
-.blog-prose .blog-code-block .token.selector, 
-.blog-prose .blog-code-block .token.attr-name, 
-.blog-prose .blog-code-block .token.string, 
-.blog-prose .blog-code-block .token.char, 
-.blog-prose .blog-code-block .token.builtin, 
-.blog-prose .blog-code-block .token.inserted {
-  color: #d4d4d4;
-}
-.blog-prose .blog-code-block .token.operator, 
-.blog-prose .blog-code-block .token.entity, 
-.blog-prose .blog-code-block .token.url, 
-.blog-prose .blog-code-block .language-css .token.string, 
-.blog-prose .blog-code-block .style .token.string {
-  color: #a3a3a3;
-}
-.blog-prose .blog-code-block .token.atrule, 
-.blog-prose .blog-code-block .token.attr-value, 
-.blog-prose .blog-code-block .token.keyword {
-  color: #ffffff;
-  font-weight: 600;
-}
-.blog-prose .blog-code-block .token.function, 
-.blog-prose .blog-code-block .token.class-name {
-  color: #ffffff;
-}
-.blog-prose .blog-code-block .token.regex, 
-.blog-prose .blog-code-block .token.important, 
-.blog-prose .blog-code-block .token.variable {
-  color: #bcbcbc;
-}
-.blog-prose .blog-code-block .token.important, 
-.blog-prose .blog-code-block .token.bold {
-  font-weight: 700;
-}
-.blog-prose .blog-code-block .token[class~="italic"] {
-  font-style: italic;
-}
-.blog-prose img {
-  @apply rounded-xl border border-zinc-800 my-6 max-w-full;
+
+.clean-svg-output .edgeLabel rect {
+  fill: #0a0a0a !important;
 }

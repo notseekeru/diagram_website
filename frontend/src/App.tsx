@@ -11,14 +11,7 @@ import axios from "axios";
 import EditorPanel from "./components/EditorPanel";
 import PreviewPanel from "./components/PreviewPanel";
 import RecentBar from "./components/RecentBar";
-import type { DiagramSummary } from "./types";
-
-type StatusTone = "info" | "success" | "error";
-
-type StatusMessage = {
-  tone: StatusTone;
-  message: string;
-};
+import type { DiagramSummary, StatusMessage, StatusTone } from "./types";
 
 type ServerDiagram = {
   id: string;
@@ -90,6 +83,7 @@ export default function App() {
     localStorage.setItem("diagram_api_key", apiKey);
   }, [apiKey]);
 
+  // Restored strict theme configs matching your config tokens
   useEffect(() => {
     mermaid.initialize({
       startOnLoad: false,
@@ -100,7 +94,7 @@ export default function App() {
         defaultRenderer: "elk",
       },
       themeVariables: {
-        background: "#000000",
+        background: "#0a0a0a",
         primaryColor: "#0a0a0a",
         primaryBorderColor: "#262626",
         primaryTextColor: "#f5f5f5",
@@ -114,6 +108,10 @@ export default function App() {
         signalLineColor: "#a3a3a3",
       },
     });
+  }, []);
+
+  const forceRender = useCallback(() => {
+    setRenderNonce((value: number) => value + 1);
   }, []);
 
   useEffect(() => {
@@ -139,18 +137,12 @@ export default function App() {
     return () => window.clearTimeout(handle);
   }, [mermaidText, renderNonce]);
 
-  const forceRender = useCallback(() => {
-    setRenderNonce((value: number) => value + 1);
-  }, []);
-
   const setStatusMessage = useCallback((tone: StatusTone, message: string) => {
     setStatus({ tone, message });
   }, []);
 
   useEffect(() => {
-    if (!status) {
-      return;
-    }
+    if (!status) return;
 
     const timer = window.setTimeout(() => {
       setStatus(null);
@@ -184,9 +176,7 @@ export default function App() {
         return;
       }
 
-      if (!silent) {
-        setIsBusy(true);
-      }
+      if (!silent) setIsBusy(true);
       try {
         const response = await api.get("/api/diagrams?limit=50");
         const summaries = (
@@ -207,9 +197,7 @@ export default function App() {
           setStatusMessage("error", "Failed to load diagrams.");
         }
       } finally {
-        if (!silent) {
-          setIsBusy(false);
-        }
+        if (!silent) setIsBusy(false);
       }
     },
     [api, hasApiKey, setStatusMessage],
@@ -229,14 +217,9 @@ export default function App() {
       payload: { title: string; mermaidText: string },
       silent: boolean,
     ) => {
-      if (!silent) {
-        setIsBusy(true);
-      }
+      if (!silent) setIsBusy(true);
       try {
         const response = await api.put(`/api/diagrams/${id}`, payload);
-        if (!silent) {
-          setStatusMessage("success", "Diagram updated.");
-        }
         return response.data.diagram as ServerDiagram;
       } catch (error) {
         console.error(error);
@@ -245,9 +228,7 @@ export default function App() {
         }
         throw error;
       } finally {
-        if (!silent) {
-          setIsBusy(false);
-        }
+        if (!silent) setIsBusy(false);
       }
     },
     [api, setStatusMessage],
@@ -301,19 +282,80 @@ export default function App() {
     updateDiagram,
   ]);
 
+  const resetEditor = useCallback(() => {
+    setSelectedId(null);
+    setTitle(DEFAULT_TITLE);
+    setMermaidText(defaultMermaid);
+    lastSavedPayload.current = "";
+    setLastAutoSave(null);
+    setStatusMessage("info", "New draft ready.");
+  }, [setStatusMessage]);
+
+  const deleteDiagram = useCallback(async () => {
+    if (!hasApiKey || !selectedId) {
+      setStatusMessage("error", "Select a diagram to delete.");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      "Delete this diagram? This cannot be undone.",
+    );
+    if (!confirmDelete) return;
+
+    setIsBusy(true);
+    try {
+      await api.delete(`/api/diagrams/${selectedId}`);
+      resetEditor();
+      setStatusMessage("success", "Diagram deleted.");
+      await fetchDiagrams(true);
+    } catch (error) {
+      console.error(error);
+      setStatusMessage("error", "Failed to delete diagram.");
+    } finally {
+      setIsBusy(false);
+    }
+  }, [
+    api,
+    fetchDiagrams,
+    hasApiKey,
+    selectedId,
+    setStatusMessage,
+    resetEditor,
+  ]);
+
+  const loadDiagram = useCallback(
+    async (id: string) => {
+      if (!hasApiKey) {
+        setStatusMessage("error", "X-API-Key is required to load.");
+        return;
+      }
+
+      setIsBusy(true);
+      try {
+        const response = await api.get(`/api/get-diagram/${id}`);
+        const diagram = response.data.diagram as ServerDiagram;
+        applyServerDiagram(diagram);
+        setStatusMessage("success", "Diagram loaded.");
+      } catch (error) {
+        console.error(error);
+        setStatusMessage("error", "Failed to load diagram.");
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [api, applyServerDiagram, hasApiKey, setStatusMessage],
+  );
+
   useEffect(() => {
     if (!hasApiKey) {
       setDiagrams([]);
       return;
     }
-
     fetchDiagrams(true).catch(() => undefined);
   }, [fetchDiagrams, hasApiKey]);
 
   useEffect(() => {
-    if (!isFullscreen) {
-      return;
-    }
+    if (!isFullscreen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -331,43 +373,37 @@ export default function App() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+      const isModifier = event.ctrlKey || event.metaKey;
+      if (!isModifier) return;
+
+      const key = event.key.toLowerCase();
+      if (key === "s") {
         event.preventDefault();
         saveDiagram();
+      }
+      if (key === "d") {
+        event.preventDefault();
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [saveDiagram]);
+  }, [deleteDiagram, saveDiagram]);
 
   useEffect(() => {
-    if (!hasApiKey) {
-      return;
-    }
-
-    if (!mermaidText.trim()) {
-      return;
-    }
-
-    if (!selectedId && !draftDirty) {
-      return;
-    }
+    if (!hasApiKey || !mermaidText.trim()) return;
+    if (!selectedId && !draftDirty) return;
 
     const payload = buildPayload();
     const payloadKey = JSON.stringify(payload);
-    if (payloadKey === lastSavedPayload.current) {
-      return;
-    }
+    if (payloadKey === lastSavedPayload.current) return;
 
     if (autoSaveTimer.current) {
       window.clearTimeout(autoSaveTimer.current);
     }
 
     autoSaveTimer.current = window.setTimeout(() => {
-      if (autoSaveInFlight.current) {
-        return;
-      }
+      if (autoSaveInFlight.current) return;
 
       autoSaveInFlight.current = true;
       const isCreate = !selectedId;
@@ -406,81 +442,8 @@ export default function App() {
     mermaidText,
     selectedId,
     setStatusMessage,
-    title,
     updateDiagram,
   ]);
-
-  const loadDiagram = useCallback(
-    async (id: string) => {
-      if (!hasApiKey) {
-        setStatusMessage("error", "X-API-Key is required to load.");
-        return;
-      }
-
-      setIsBusy(true);
-      try {
-        const response = await api.get(`/api/get-diagram/${id}`);
-        const diagram = response.data.diagram as ServerDiagram;
-        applyServerDiagram(diagram);
-        setStatusMessage("success", "Diagram loaded.");
-      } catch (error) {
-        console.error(error);
-        setStatusMessage("error", "Failed to load diagram.");
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [api, applyServerDiagram, hasApiKey, setStatusMessage],
-  );
-
-  const resetEditor = useCallback(() => {
-    setSelectedId(null);
-    setTitle(DEFAULT_TITLE);
-    setMermaidText(defaultMermaid);
-    lastSavedPayload.current = "";
-    setLastAutoSave(null);
-    setStatusMessage("info", "New draft ready.");
-  }, [setStatusMessage]);
-
-  const deleteDiagram = useCallback(async () => {
-    if (!hasApiKey || !selectedId) {
-      setStatusMessage("error", "Select a diagram to delete.");
-      return;
-    }
-
-    const confirmDelete = window.confirm(
-      "Delete this diagram? This cannot be undone.",
-    );
-    if (!confirmDelete) {
-      return;
-    }
-
-    setIsBusy(true);
-    try {
-      await api.delete(`/api/diagrams/${selectedId}`);
-      resetEditor();
-      setStatusMessage("success", "Diagram deleted.");
-      await fetchDiagrams(true);
-    } catch (error) {
-      console.error(error);
-      setStatusMessage("error", "Failed to delete diagram.");
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    api,
-    fetchDiagrams,
-    hasApiKey,
-    selectedId,
-    setStatusMessage,
-    resetEditor,
-  ]);
-
-  const statusStyles: Record<StatusTone, string> = {
-    info: "border-border bg-surface/70 text-slate-200",
-    success: "border-emerald-500/40 bg-emerald-500/10 text-emerald-200",
-    error: "border-rose-500/40 bg-rose-500/10 text-rose-200",
-  };
 
   const layoutClass = isRecentOpen
     ? "lg:grid-cols-[200px_minmax(0,1fr)_minmax(0,1fr)]"
@@ -494,11 +457,9 @@ export default function App() {
     setIsRecentOpen((value: boolean) => !value);
   };
 
-  const statusClass = status ? statusStyles[status.tone] : "";
-
   return (
-    <div className="min-h-screen text-slate-100">
-      <div className="px-5 pb-8 pt-6 lg:px-10">
+    <div className="min-h-screen text-slate-100 bg-surface">
+      <div className="flex h-screen flex-col px-5 pb-6 pt-6 lg:px-10">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.35em] text-muted">
@@ -517,82 +478,44 @@ export default function App() {
               X-API-Key
             </label>
             <input
+              type="password"
               value={apiKey}
               onChange={handleApiKeyChange}
               placeholder="paste your api key"
-              className="w-full rounded-lg border border-border bg-surface/70 px-3 py-2 text-xs text-slate-100 placeholder:text-muted shadow-sm outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/30"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-slate-100 placeholder:text-muted shadow-sm outline-none transition focus:border-accentSecondary/60 focus:ring-2 focus:ring-accent/10"
             />
           </div>
         </header>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button
-            onClick={saveDiagram}
-            disabled={isBusy || !hasApiKey}
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-slate-900 transition disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Save
-          </button>
-          <button
-            onClick={forceRender}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface/70 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:border-accent/50"
-          >
-            Render
-          </button>
-          <button
-            onClick={toggleRecent}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface/70 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:border-accent/50"
-          >
-            {isRecentOpen ? "Hide recent" : "Show recent"}
-          </button>
-          <button
-            onClick={deleteDiagram}
-            disabled={isBusy || !selectedId}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface/70 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:border-accent/50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => fetchDiagrams(false)}
-            disabled={isBusy}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface/70 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:border-accent/50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Refresh
-          </button>
-          <button
-            onClick={resetEditor}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-transparent px-3 py-1.5 text-xs font-semibold text-muted transition hover:border-accent/40 hover:text-slate-100"
-          >
-            New
-          </button>
-          <div className="ml-auto flex flex-wrap items-center gap-2 text-xs text-muted">
-            {selectedId && <span>Selected: {selectedId}</span>}
-            {lastAutoSave && <span>Autosaved at {lastAutoSave}</span>}
-            {status && (
-              <span className={`rounded-full border px-2 py-1 ${statusClass}`}>
-                {status.message}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className={`mt-6 grid gap-4 ${layoutClass}`}>
-          {isRecentOpen ? (
+        <div className={`mt-4 grid flex-1 min-h-0 gap-4 ${layoutClass}`}>
+          {isRecentOpen && (
             <RecentBar
               diagrams={diagrams}
               selectedId={selectedId}
               onSelect={loadDiagram}
             />
-          ) : null}
+          )}
 
           <EditorPanel
             title={title}
             mermaidText={mermaidText}
             onTitleChange={setTitle}
             onMermaidChange={setMermaidText}
+            onSave={saveDiagram}
+            onRender={forceRender}
+            onDelete={deleteDiagram}
+            onNew={resetEditor}
+            onRefresh={() => fetchDiagrams(false)}
+            onToggleRecent={toggleRecent}
+            isBusy={isBusy}
+            hasApiKey={hasApiKey}
+            isRecentOpen={isRecentOpen}
+            selectedId={selectedId}
+            lastAutoSave={lastAutoSave}
+            status={status}
           />
 
-          {isFullscreen ? null : (
+          {!isFullscreen && (
             <PreviewPanel
               previewSvg={previewSvg}
               previewError={previewError}
@@ -605,7 +528,7 @@ export default function App() {
 
       {isFullscreen && (
         <>
-          <div className="fixed inset-0 z-40 bg-[#1f262a]/95" />
+          <div className="fixed inset-0 z-40 bg-surface/95 backdrop-blur-sm" />
           <div className="fixed inset-5 z-50">
             <PreviewPanel
               previewSvg={previewSvg}

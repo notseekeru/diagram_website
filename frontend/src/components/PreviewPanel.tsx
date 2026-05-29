@@ -1,5 +1,3 @@
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-
 type PreviewPanelProps = {
   previewSvg: string;
   previewError: string | null;
@@ -14,84 +12,37 @@ export default function PreviewPanel({
   onToggleFullscreen,
 }: PreviewPanelProps) {
   return (
-    <section
-      className={`border-gradient rounded-xl bg-surface/90 p-3 shadow-sm ${
-        isFullscreen ? "h-full" : ""
-      }`}
-    >
-      <TransformWrapper
-        minScale={0.5}
-        maxScale={3}
-        centerOnInit
-        wheel={{ step: 0.08 }}
-        doubleClick={{ disabled: true }}
-      >
-        {({
-          zoomIn,
-          zoomOut,
-          resetTransform,
-        }: {
-          zoomIn: () => void;
-          zoomOut: () => void;
-          resetTransform: () => void;
-        }) => (
-          <>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-100">
-                  Preview
-                </h2>
-                <p className="text-xs text-muted">Pan + zoom enabled.</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => zoomOut()}
-                  className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-zinc-100 transition hover:border-accent/60"
-                >
-                  -
-                </button>
-                <button
-                  onClick={() => zoomIn()}
-                  className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-zinc-100 transition hover:border-accent/60"
-                >
-                  +
-                </button>
-                <button
-                  onClick={() => resetTransform()}
-                  className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-zinc-100 transition hover:border-accent/60"
-                >
-                  Reset
-                </button>
-                <button
-                  onClick={onToggleFullscreen}
-                  className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-zinc-100 transition hover:border-accent/60"
-                >
-                  {isFullscreen ? "Exit" : "Full"}
-                </button>
-              </div>
-            </div>
-            <div
-              className={`preview-grid mt-3 rounded-xl border border-border bg-surface/70 p-3 ${
-                isFullscreen ? "h-[calc(100%-56px)]" : "min-h-[340px]"
-              }`}
-            >
-              {previewError ? (
-                <div className="text-xs text-rose-400">{previewError}</div>
-              ) : (
-                <TransformComponent
-                  wrapperClass="h-full w-full"
-                  contentClass="flex h-full w-full items-center justify-center"
-                >
-                  <div
-                    className="mermaid max-w-full overflow-auto invert dark:invert-0"
-                    dangerouslySetInnerHTML={{ __html: previewSvg }}
-                  />
-                </TransformComponent>
-              )}
-            </div>
-          </>
+    <section className="flex h-full flex-col rounded-xl border border-border bg-surface/90 p-3 shadow-xl min-h-0 flex-1">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">
+          Preview
+        </h2>
+        <button
+          onClick={onToggleFullscreen}
+          className="text-xs px-2 py-1 rounded border border-border bg-surface text-slate-300 hover:border-accentSecondary/50 transition focus:outline-none focus:ring-2 focus:ring-accent/30"
+        >
+          {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+        </button>
+      </div>
+
+      {/* Embedded with your grid-pattern layout configurations */}
+      <div className="flex-1 min-h-0 w-full rounded-xl border border-border bg-surface bg-grid-pattern bg-grid-size p-4 overflow-auto flex items-center justify-center">
+        {previewError ? (
+          <div className="text-xs font-mono text-rose-400 bg-rose-500/10 p-3 rounded-lg border border-rose-500/20 max-w-md w-full">
+            <p className="font-semibold mb-1">Render Error:</p>
+            {previewError}
+          </div>
+        ) : previewSvg ? (
+          <div
+            className="w-full h-full flex items-center justify-center clean-svg-output"
+            dangerouslySetInnerHTML={{ __html: previewSvg }}
+          />
+        ) : (
+          <p className="text-xs text-muted font-mono">
+            Awaiting valid chart layout...
+          </p>
         )}
-      </TransformWrapper>
+      </div>
     </section>
   );
 }
