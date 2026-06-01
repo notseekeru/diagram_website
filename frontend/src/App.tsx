@@ -6,7 +6,7 @@ import {
   useState,
   type ChangeEvent,
 } from "react";
-import mermaid from "mermaid";
+import mermaid, { type MermaidConfig } from "mermaid";
 import axios from "axios";
 import EditorPanel from "./components/EditorPanel";
 import PreviewPanel from "./components/PreviewPanel";
@@ -73,12 +73,14 @@ export default function App() {
     [title, mermaidText],
   );
 
-  const mermaidBaseConfig = useMemo(() => {
+  const mermaidBaseConfig = useMemo<MermaidConfig>(() => {
     return {
       startOnLoad: false,
       securityLevel: "strict",
-      theme: "base",
+      theme: "base", // Now correctly understood as a valid literal union type
       fontFamily: "Space Grotesk, sans-serif",
+      // Define an empty flowchart config here so TypeScript knows it's a valid field
+      flowchart: {},
       themeVariables: {
         background: "#0a0a0a",
         primaryColor: "#0a0a0a",
@@ -112,8 +114,8 @@ export default function App() {
       const isElk = layout === "elk";
       mermaid.initialize({
         ...mermaidBaseConfig,
-        layout,
         flowchart: {
+          ...mermaidBaseConfig.flowchart, // No longer errors out
           defaultRenderer: isElk ? "elk" : "dagre-wrapper",
         },
       });
