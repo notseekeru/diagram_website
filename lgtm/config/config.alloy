@@ -1,0 +1,171 @@
+/* 
+Live debugging, turn off if production(resource intensive), and note to change in the compose file alloy
+livedebugging {
+  enabled = true
+} */
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "filter_containers" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(alloy|loki|grafana|tempo|prometheus)"
+    action        = "drop"
+  }
+
+	rule {
+  	source_labels = ["__meta_docker_container_name"]
+    regex         = "/sidecar-healthcheck"
+    action        = "drop"
+	}
+
+}
+
+loki.source.docker "logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.filter_containers.output
+  forward_to = [loki.process.standard_pipeline.receiver]
+}
+
+loki.process "standard_pipeline" {
+    forward_to = [loki.write.local_loki.receiver]
+
+    stage.static_labels {
+      values = {
+				instance    = sys.env("HOSTNAME"),
+				environment = "production",
+			}
+		}
+
+		stage.json {
+      expressions = { level = "level" }
+    }
+
+		stage.match {
+    	selector = "{caller=\"recalculate_owned_streams.go\"} |= \"completed\""
+    	action   = "drop"
+  	}
+
+		stage.drop {
+			source      = "level"
+			expression  = "(debug|verbose)"
+			drop_counter_reason = "noise_reduction"
+		}
+
+    stage.labels {
+        values = {
+            level = "level",
+        }
+    }
+}
+
+loki.write "local_loki" {
+    endpoint {
+        url = "http://loki:3100/loki/api/v1/push"
+    }
+}
+
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+      endpoint = "0.0.0.0:4318"
+      cors {
+      allowed_origins = ["*"]
+      }
+    }
+
+  output {
+    traces  = [otelcol.processor.memory_limiter.default.input]
+    metrics = [otelcol.processor.memory_limiter.default.input]
+    logs    = [otelcol.processor.memory_limiter.default.input]
+  }
+}
+
+otelcol.processor.memory_limiter "default" {
+  check_interval = "1s"
+  limit_percentage = 75
+  spike_limit_percentage = 20
+  output {
+    traces = [otelcol.processor.batch.default.input]
+    metrics = [otelcol.processor.batch.default.input]
+    logs    = [otelcol.exporter.loki.to_loki.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  send_batch_size = 50
+  timeout = "500ms"
+  output {
+    traces  = [otelcol.exporter.otlp.to_tempo.input]
+    metrics = [otelcol.exporter.prometheus.to_prometheus.input]
+  }
+}
+
+otelcol.exporter.loki "to_loki" {
+    forward_to = [loki.write.local_loki.receiver]
+}
+
+otelcol.exporter.otlp "to_tempo" {
+  client {
+    endpoint = "tempo:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+otelcol.exporter.prometheus "to_prometheus" {
+    forward_to = [prometheus.remote_write.local_prometheus.receiver]
+}
+
+prometheus.exporter.unix "node_stats" {
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+}
+
+prometheus.scrape "scrape_node_stats" {
+  targets         = prometheus.exporter.unix.node_stats.targets
+  forward_to      = [prometheus.relabel.standardize_metrics.receiver]
+  scrape_interval = "60s"
+
+}
+
+prometheus.exporter.self "alloy_stats" {
+}
+
+prometheus.scrape "scrape_alloy" {
+  targets    = prometheus.exporter.self.alloy_stats.targets
+  forward_to = [prometheus.relabel.standardize_metrics.receiver]
+}
+
+prometheus.relabel "standardize_metrics" {
+  forward_to = [prometheus.remote_write.local_prometheus.receiver]
+
+	rule {
+		target_label = "collector"
+		replacement  = "alloy"
+	}
+
+  rule {
+    target_label = "instance"
+    replacement  = sys.env("HOSTNAME")
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "node"
+  }
+}
+
+prometheus.remote_write "local_prometheus" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+

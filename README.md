@@ -16,6 +16,16 @@ This repository contains the source code for my personal mermaid diagrams. I use
 - PostgreSQL: A powerful, open-source object-relational database system that uses and extends the SQL language, used for storing diagram data and user information.
 - Docker: A platform for developing, shipping, and running applications in containers, used to containerize the application for easy deployment.
 
+## Observability Stack
+
+- OpenTelemetry: A collection of tools, APIs, and SDKs for instrumenting, generating, collecting, and exporting telemetry data (traces, metrics, logs) to help you analyze your software's performance and behavior.
+- Grafana: An open-source platform for monitoring and observability, used to visualize the telemetry data collected by OpenTelemetry.
+- Prometheus: An open-source systems monitoring and alerting toolkit, used to collect and store metrics data from the application.
+- Loki: A horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus, used to collect and store log data from the application.
+- Tempo: A high-scale distributed tracing backend, used to collect and store trace data from the application.
+- Alloy: A lightweight, high-performance time-series database, used to store and query the telemetry data collected by OpenTelemetry.
+- Alertmanager: A component of the Prometheus ecosystem that handles alerts sent by client applications, used to manage and route alerts based on defined rules and configurations.
+
 ## Local Development
 
 1. Copy `backend/.env.example` to `backend/.env` and set `API_KEY` and `DATABASE_URL`.

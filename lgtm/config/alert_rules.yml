@@ -1,0 +1,29 @@
+groups:
+  - name: infrastructure_alerts
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} is down"
+          description: "Alloy target has been offline for over 1 minute."
+
+      - alert: HostHighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host memory usage high"
+          description: 'Memory usage on {{ $labels.instance }} is above 90% (current value: {{ $value | printf "%.2f" }}%)'
+
+      - alert: HostHighCpuLoad
+        expr: 100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host CPU load high"
+          description: "CPU load on {{ $labels.instance }} is above 85% for 10 minutes."

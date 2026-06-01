@@ -1,0 +1,129 @@
+services:
+  # v3.7.1
+  loki:
+    image: grafana/loki:3.7.1
+    container_name: loki
+    shm_size: "512m"
+    ports:
+      - "3100:3100"
+    command:
+      - -config.file=/etc/loki/loki.yml
+    volumes:
+      - ./config/loki.yml:/etc/loki/loki.yml:ro
+      - loki-data:/loki
+    networks:
+      - obs-network
+    restart: unless-stopped
+
+  # v13.0.1
+  grafana:
+    image: grafana/grafana:13.0.1
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - HOSTNAME=${HOSTNAME}
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - obs-network
+    restart: unless-stopped
+
+  # v2.6.0
+  tempo:
+    image: grafana/tempo:2.6.0
+    container_name: tempo
+    command:
+      - --config.file=/etc/tempo/tempo.yml
+
+    volumes:
+      - ./config/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo-data:/var/tempo
+    ports:
+      - "3200:3200"
+    networks:
+      - obs-network
+    restart: unless-stopped
+
+  # v3.11.3
+  prometheus:
+    image: prom/prometheus:v3.11.3
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=6d
+      - --web.enable-remote-write-receiver
+      - --storage.tsdb.max-block-duration=3h
+      - --web.enable-otlp-receiver
+
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+      - ./config/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+    networks:
+      - obs-network
+    restart: unless-stopped
+
+  # v1.16.1
+  alloy:
+    image: grafana/alloy:v1.16.1
+    container_name: alloy
+    # If running windows, you may need to adjust the user/group IDs or run without user restrictions
+    # user: "10001:10001"
+    # group_add:
+    #   - "1001"
+    environment:
+      - ALLOY_DEPLOY_MODE=docker
+      - HOSTNAME=${HOSTNAME}
+    ports:
+      - "12345:12345"
+      - "4317:4317"
+      - "4318:4318"
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy-data
+      # --stability.level=experimental # Enable experimental features for development, disable in production.
+      - /etc/alloy/config.alloy
+
+    volumes:
+      - ./config/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/log:/var/log:ro
+      - ./alloy-data:/var/lib/alloy-data
+    networks:
+      - obs-network
+    restart: unless-stopped
+
+  # Disabled for now, as it requires additional configuration and is not essential for the initial setup of the observability stack. We can enable it later once we have the basic monitoring and logging in place.
+  # alertmanager:
+  #   image: prom/alertmanager:v0.32.1
+  #   container_name: alertmanager
+  #   ports:
+  #     - "9093:9093"
+  #   command:
+  #     - "--config.file=/etc/alertmanager/alertmanager.yml"
+  #     - "--storage.path=/alertmanager"
+  #   volumes:
+  #     - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+  #     - alertmanager-data:/alertmanager
+  #   networks:
+  #     - obs-network
+  #   restart: unless-stopped
+
+networks:
+  obs-network:
+    external: true
+
+volumes:
+  loki-data: {}
+  grafana-data: {}
+  tempo-data: {}
+  prometheus-data: {}
+  alloy-data: {}
+  alertmanager-data: {}
