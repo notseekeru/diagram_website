@@ -65,6 +65,7 @@ export default function App() {
   const autoSaveTimer = useRef<number | null>(null);
   const autoSaveInFlight = useRef(false);
   const lastSavedPayload = useRef<string>("");
+  const lastLayoutRef = useRef<"dagre" | "elk">("dagre");
 
   const hasApiKey = apiKey.trim().length > 0;
   const draftDirty = useMemo(
@@ -72,27 +73,12 @@ export default function App() {
     [title, mermaidText],
   );
 
-  const api = useMemo(() => {
-    return axios.create({
-      baseURL: backendUrl,
-      headers: hasApiKey ? { "X-API-Key": apiKey.trim() } : {},
-    });
-  }, [apiKey, hasApiKey]);
-
-  useEffect(() => {
-    localStorage.setItem("diagram_api_key", apiKey);
-  }, [apiKey]);
-
-  // Restored strict theme configs matching your config tokens
-  useEffect(() => {
-    mermaid.initialize({
+  const mermaidBaseConfig = useMemo(() => {
+    return {
       startOnLoad: false,
       securityLevel: "strict",
       theme: "base",
       fontFamily: "Space Grotesk, sans-serif",
-      flowchart: {
-        defaultRenderer: "elk",
-      },
       themeVariables: {
         background: "#0a0a0a",
         primaryColor: "#0a0a0a",
@@ -107,8 +93,56 @@ export default function App() {
         signalColor: "#ffffff",
         signalLineColor: "#a3a3a3",
       },
-    });
+    };
   }, []);
+
+  const api = useMemo(() => {
+    return axios.create({
+      baseURL: backendUrl,
+      headers: hasApiKey ? { "X-API-Key": apiKey.trim() } : {},
+    });
+  }, [apiKey, hasApiKey]);
+
+  useEffect(() => {
+    localStorage.setItem("diagram_api_key", apiKey);
+  }, [apiKey]);
+
+  const applyMermaidLayout = useCallback(
+    (layout: "dagre" | "elk") => {
+      const isElk = layout === "elk";
+      mermaid.initialize({
+        ...mermaidBaseConfig,
+        layout,
+        flowchart: {
+          defaultRenderer: isElk ? "elk" : "dagre-wrapper",
+        },
+      });
+      lastLayoutRef.current = layout;
+    },
+    [mermaidBaseConfig],
+  );
+
+  const ensureMermaidLayout = useCallback(
+    (diagramText: string) => {
+      let diagramType: string | null = null;
+      try {
+        diagramType = mermaid.detectType(diagramText);
+      } catch {
+        diagramType = null;
+      }
+
+      const shouldUseElk = diagramType?.startsWith("flowchart") ?? false;
+      const nextLayout = shouldUseElk ? "elk" : "dagre";
+      if (lastLayoutRef.current !== nextLayout) {
+        applyMermaidLayout(nextLayout);
+      }
+    },
+    [applyMermaidLayout],
+  );
+
+  useEffect(() => {
+    applyMermaidLayout("dagre");
+  }, [applyMermaidLayout]);
 
   const forceRender = useCallback(() => {
     setRenderNonce((value: number) => value + 1);
@@ -122,6 +156,7 @@ export default function App() {
     }
 
     const handle = window.setTimeout(() => {
+      ensureMermaidLayout(mermaidText);
       mermaid
         .render(`preview-${renderNonce}-${Date.now()}`, mermaidText)
         .then((result: { svg: string }) => {
@@ -135,7 +170,7 @@ export default function App() {
     }, 150);
 
     return () => window.clearTimeout(handle);
-  }, [mermaidText, renderNonce]);
+  }, [ensureMermaidLayout, mermaidText, renderNonce]);
 
   const setStatusMessage = useCallback((tone: StatusTone, message: string) => {
     setStatus({ tone, message });
@@ -383,6 +418,7 @@ export default function App() {
       }
       if (key === "d") {
         event.preventDefault();
+        deleteDiagram();
       }
     };
 
