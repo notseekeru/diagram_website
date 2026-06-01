@@ -45,3 +45,6 @@ prod-logs:
 
 prod-down:
 	$(PROD_CMD) down -v --rmi local
+
+chaos-run:
+	cd scripts && ./chaos_test.sh

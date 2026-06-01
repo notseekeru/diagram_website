@@ -36,3 +36,7 @@ This repository contains the source code for my personal mermaid diagrams. I use
 ## API Authentication
 
 All endpoints require `X-API-Key`. See [docs/api-auth.md](docs/api-auth.md).
+
+## Chaos Engineering
+
+All chaos experiments are defined in `scripts/` and can be executed with `make chaos-run`. See [docs/chaos.md](docs/chaos.md) for more details.
