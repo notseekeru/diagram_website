@@ -17,8 +17,8 @@ All done within a lab experiment with only 1 user (me) sending requests to the b
 
 - Server Latency: Significant spike increase in latency for all API requests, with many requests timing out or failing.
 - Server Traffic: Steady increase in traffic as clients continue to send requests, but all requests fail due to the database outage.
-- Server Status Code: 500 Internal Server Error Increase
 - Server Saturation: Steady Increase
+- Server Status Code: 500 Internal Server Error Increase
 - Server Error 400/500: Hovering around 0.1 - 0.3, not 0.
 - Database Saturation: Sharp Steady 0% saturation as the database becomes unresponsive.
 - Database Latency: Significant spike decrease in latency as the database becomes unresponsive.
@@ -28,8 +28,8 @@ All done within a lab experiment with only 1 user (me) sending requests to the b
 
 - Server Latency: Sharp decrease in latency as the backend recovers and starts serving requests successfully again.
 - Server Traffic: Sharp decrease in traffic as clients receive successful responses and stop retrying.
-- Server Status Code: Sharp decrease in 500 Internal Server Errors as the backend recovers, with a corresponding increase in 200 OK responses after recovery.
 - Server Saturation: Sharp decrease in saturation as the backend recovers.
+- Server Status Code: Sharp decrease in 500 Internal Server Errors as the backend recovers, with a corresponding increase in 200 OK responses after recovery.
 - Server Error 400/500: Sharp decrease "0" in error rate as the backend recovers, with a corresponding increase in successful responses.
 - Database Saturation: Steady 0% in saturation as the database recovers.
 - Database Latency: Steady decrease in latency as the database recovers.
