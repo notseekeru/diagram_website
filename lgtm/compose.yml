@@ -110,6 +110,8 @@ services:
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
+    environment:
+      - SLACK_API_URL=${ALERTMANAGER_SLACK_WEBHOOK} # Change the left side to this
     volumes:
       - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager-data:/alertmanager

@@ -6,10 +6,9 @@ All done within a lab experiment with only 1 user (me) sending requests to the b
 
 - Date: May 29, 2026
 - Failure mode: Postgres database docker stop
-- MTTD: 3 seconds
-- MTTR: 3 seconds
-- Observability Propagation Latency: 40 seconds
-- Result: Once the Postgres container is stopped, all API requests to the backend fail with a `500 Internal Server Error` due to the inability to connect to the database. The backend logs show connection errors indicating that the database is unreachable. Once the Postgres container is restarted, the backend recovers and starts serving requests successfully again within 3 seconds and propagates to grafana in 40 seconds.
+- MTTD: 10 seconds
+- MTTR: 60 seconds
+- Result: When the Postgres container is stopped, the backend detects the outage and starts returning `500 Internal Server Error` responses within 10 seconds. The backend logs show connection errors indicating that the database is unreachable. Once the Postgres container is restarted, the backend recovers and starts serving requests successfully again within 5 seconds and propagates to grafana in 55 seconds.
 
 ## Metrics Observed During the Experiment
 
@@ -37,7 +36,6 @@ All done within a lab experiment with only 1 user (me) sending requests to the b
 
 ### Optimized Outcomes Metrics
 
-- MTTD: 1.5 seconds
-- MTTR: 1.5 seconds
-- Observability Propagation Latency: 15 seconds (optimized by configuring Prometheus to scrape metrics more frequently and optimizing the Grafana dashboard to display real-time data more efficiently)
-- Result: With the optimized configuration, when the Postgres container is stopped, the backend detects the outage and starts returning `500 Internal Server Error` responses within 1.5 seconds, significantly reducing the time it takes for the system to recognize the failure. Once the Postgres container is restarted, the backend recovers and starts serving requests successfully again within 3 seconds and propagates to Grafana in 15 seconds.
+- MTTD: 5 seconds
+- MTTR: 40 seconds
+- Result: When the Postgres container is stopped, the backend detects the outage and starts returning `500 Internal Server Error` responses within 5 seconds. The backend logs show connection errors indicating that the database is unreachable. Once the Postgres container is restarted, the backend recovers and starts serving requests successfully again within 3 seconds and propagates to grafana in 37 seconds.
