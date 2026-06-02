@@ -25,7 +25,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - HOSTNAME=${HOSTNAME}
     volumes:
-      - grafana-data:/var/lib/grafana
+      # Intentional to save Grafana data (dashboards, datasources, etc.) across container restarts. This allows you to persist your Grafana configuration and data even if the container is recreated or updated.
+      - ./grafana-data:/var/lib/grafana
     networks:
       - obs-network
     restart: unless-stopped
@@ -90,6 +91,7 @@ services:
       - /etc/alloy/config.alloy
 
     volumes:
+      # The data volume is not mounted to docker volume due to permission issues on linux.
       - ./config/config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc:/host/proc:ro
@@ -100,7 +102,7 @@ services:
       - obs-network
     restart: unless-stopped
 
-  # Disabled for now, as it requires additional configuration and is not essential for the initial setup of the observability stack. We can enable it later once we have the basic monitoring and logging in place.
+  # Disabled defaulted, it requires additional configuration and is not essential for the initial setup of the observability stack. We can enable it later once we have the basic monitoring and logging in place.
   # alertmanager:
   #   image: prom/alertmanager:v0.32.1
   #   container_name: alertmanager
