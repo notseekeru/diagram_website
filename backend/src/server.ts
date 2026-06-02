@@ -76,14 +76,9 @@ app.use(
 
 app.use(express.json({ limit: "512kb" }));
 
-app.use(
-  rateLimit({
-    windowMs: 60_000,
-    limit: 120,
-    standardHeaders: true,
-    legacyHeaders: false,
-  }),
-);
+if (process.env.NODE_ENV !== "chaos") {
+  app.use(rateLimit({ windowMs: 60000, limit: 120 }));
+}
 
 // 3. Database Management Setup
 export const pool = new Pool({

@@ -49,10 +49,7 @@ prod-logs:
 prod-down:
 	$(PROD_CMD) down -v --rmi local
 
-# Obsevability and Chaos + Traffic Simulation
-
-chaos-run:
-	cd scripts && ./chaos_test.sh
+# Observability stack
 
 lgtm-logs:
 	cd lgtm && docker compose logs -f
@@ -62,3 +59,12 @@ lgtm-up:
 
 lgtm-down:
 	cd lgtm && docker compose down -v --rmi local
+
+# Obsevability and Chaos + Traffic Simulation
+
+chaos-run:
+	cd scripts && API_KEY="zxczxc" ./chaos_test.sh
+
+
+locust:
+	locust -f scripts/locust.py --host=http://localhost:5000
