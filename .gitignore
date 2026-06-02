@@ -5,6 +5,7 @@ dist/
 .DS_Store
 *.log
 .vercel/
+.venv
 
 lgtm/alloy-data/
 lgtm/grafana-data/
