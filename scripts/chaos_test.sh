@@ -2,7 +2,8 @@
 set -euo pipefail
 
 CONTAINER_NAME="diagram_postgres"
-ALERTMANAGER_WEBHOOK_URL="http://localhost:9093/api/v1/alerts"  # if you have it
+ALERTMANAGER_WEBHOOK_URL="http://localhost:9093/api/v1/alerts"
+TARGET_URL="http://localhost:5000/diagrams"
 
 # Record start time with nanosecond precision (Linux)
 inject_time=$(date +%s%N)
