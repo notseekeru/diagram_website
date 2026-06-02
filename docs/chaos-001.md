@@ -39,5 +39,5 @@ All done within a lab experiment with only 1 user (me) sending requests to the b
 
 - MTTD: 1.5 seconds
 - MTTR: 1.5 seconds
-- Observability Propagation Latency: 15 seconds
+- Observability Propagation Latency: 15 seconds (optimized by configuring Prometheus to scrape metrics more frequently and optimizing the Grafana dashboard to display real-time data more efficiently)
 - Result: With the optimized configuration, when the Postgres container is stopped, the backend detects the outage and starts returning `500 Internal Server Error` responses within 1.5 seconds, significantly reducing the time it takes for the system to recognize the failure. Once the Postgres container is restarted, the backend recovers and starts serving requests successfully again within 3 seconds and propagates to Grafana in 15 seconds.
