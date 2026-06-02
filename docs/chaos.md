@@ -1,14 +1,6 @@
-# Chaos Engineering
+# Chaos Testing
 
-## Header
-
-All API endpoints require an API key sent via the `X-API-Key` header.
-
-## How it works
-
-1. Create a random API key and store it in `backend/.env` as `API_KEY`.
-2. The backend compares incoming `X-API-Key` values to the configured key.
-3. Requests without a valid key receive `401 Unauthorized`.
+Simple chaos testing can be performed by manually stopping containers to simulate outages and observe how the system responds. This helps identify weaknesses in the architecture and ensures that the application can handle failures gracefully.
 
 ## Examples
 
@@ -24,14 +16,6 @@ docker stop diagram_backend
 docker stop diagram_postgres
 ```
 
-### Loop at /api/diagrams with invalid key (Status code)
+## Recommendations
 
-```bash
-START=$SECONDS; while [ $((SECONDS - START)) -lt 10 ]; do curl -H "X-API-Key: invalid_key" -s -o /dev/null -w "%{http_code}\n" http://localhost:5000/api/diagrams; sleep 0.5; done
-```
-
-### Loop at /api/diagrams with valid key (Status code)
-
-```bash
-START=$SECONDS; while [ $((SECONDS - START)) -lt 10 ]; do curl -H "X-API-Key: zxczxc" -s -o /dev/null -w "%{http_code}\n" http://localhost:5000/api/diagrams; sleep 0.5; done
-```
+- Use chaos testing tools like `chaos-mesh` or `litmus` for more controlled and repeatable experiments.
