@@ -107,11 +107,18 @@ services:
     container_name: alertmanager
     ports:
       - "9093:9093"
+    environment:
+      - ALERTMANAGER_SLACK_WEBHOOK=${ALERTMANAGER_SLACK_WEBHOOK}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        echo -n "$ALERTMANAGER_SLACK_WEBHOOK" > /tmp/slack_webhook.txt
+
+        exec /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml --storage.path=/alertmanager
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
-    environment:
-      - SLACK_API_URL=${ALERTMANAGER_SLACK_WEBHOOK} # Change the left side to this
     volumes:
       - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager-data:/alertmanager

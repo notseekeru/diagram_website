@@ -9,12 +9,9 @@ route:
   receiver: "slack-notifications"
 
 receivers:
-  - name: "local-loopback"
-    webhook_configs:
-      - url: "http://127.0.0.1"
   - name: "slack-notifications"
     slack_configs:
-      - api_url: "${ALERTMANAGER_SLACK_WEBHOOK}"
+      - api_url_file: "/tmp/slack_webhook.txt"
         channel: "#alertmanager"
         send_resolved: true
         title: "[{{ .Status | toUpper }}] LGTM Stack Infrastructure Alert"
