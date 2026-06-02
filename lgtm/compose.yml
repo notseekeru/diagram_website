@@ -102,21 +102,20 @@ services:
       - obs-network
     restart: unless-stopped
 
-  # Disabled defaulted, it requires additional configuration and is not essential for the initial setup of the observability stack. We can enable it later once we have the basic monitoring and logging in place.
-  # alertmanager:
-  #   image: prom/alertmanager:v0.32.1
-  #   container_name: alertmanager
-  #   ports:
-  #     - "9093:9093"
-  #   command:
-  #     - "--config.file=/etc/alertmanager/alertmanager.yml"
-  #     - "--storage.path=/alertmanager"
-  #   volumes:
-  #     - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-  #     - alertmanager-data:/alertmanager
-  #   networks:
-  #     - obs-network
-  #   restart: unless-stopped
+  alertmanager:
+    image: prom/alertmanager:v0.32.1
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    volumes:
+      - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    networks:
+      - obs-network
+    restart: unless-stopped
 
 networks:
   obs-network:
