@@ -51,20 +51,6 @@ Over a sample size of 10 discrete test lifecycles, the monitoring and applicatio
 | **MTTR** (Application)  | 2,950 ms      | 3,376 ms      | **3,162 ms** (3.16s)    | **PASSED**         |
 | **Total System Outage** | 5,347 ms      | 6,428 ms      | **5,682 ms** (5.68s)    | **PASSED**         |
 
-### Execution Phase Distribution (Averages)
-
-```text
-  0 ms: Fault Injected 🛑
-   │
-   ├─► [MTTD Window: 2,520 ms] (Prometheus tracking -> Engine Evaluation -> Alertmanager Route)
-   │
-2,520 ms: Alert Trigger Processing Hook 🚨
-   │
-   ├─► [MTTR Window: 3,162 ms] (Docker Process Spawn -> Health Pre-Ping Check -> Driver Connection Claim)
-   │
-5,682 ms: Application returns 200 OK 🎉 (Service Baseline Restored)
-```
-
 ---
 
 ## 5. Architectural Conclusions
