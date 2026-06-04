@@ -2,10 +2,19 @@ groups:
   - name: infrastructure_alerts
     rules:
       - alert: InstanceDown
-        expr: up == 0
+        expr: up{job="alloy"} == 0
         for: 0s
         labels:
           severity: critical
         annotations:
-          summary: "Instance {{ $labels.instance }} is down"
-          description: "Alloy target has been offline for over 1 minute."
+          summary: "Instance Down"
+          description: "The alloy container is unreachable."
+
+      - alert: DatabaseDown
+        expr: up{job="postgres"} == 0
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database Down"
+          description: "The diagram_postgres database container is unreachable."
