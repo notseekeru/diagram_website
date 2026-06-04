@@ -62,9 +62,11 @@ lgtm-down:
 
 # Obsevability and Chaos + Traffic Simulation
 
-chaos-run:
+chaos-sh:
 	cd scripts && API_KEY="zxczxc" ./chaos_test.sh
 
+chaos-py:
+	cd scripts && API_KEY="zxczxc" python chaos_test.py
 
 locust:
 	locust -f scripts/locust.py --host=http://localhost:5000
