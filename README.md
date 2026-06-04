@@ -25,6 +25,7 @@ This repository contains the source code for my personal mermaid diagrams. I use
 - Tempo: A high-scale distributed tracing backend, used to collect and store trace data from the application.
 - Alloy: A lightweight, high-performance time-series database, used to store and query the telemetry data collected by OpenTelemetry.
 - Alertmanager: A component of the Prometheus ecosystem that handles alerts sent by client applications, used to manage and route alerts based on defined rules and configurations.
+- Postgres Exporter: A Prometheus exporter for PostgreSQL metrics, used to expose database metrics to Prometheus for monitoring and alerting.
 
 ## Local Development
 
