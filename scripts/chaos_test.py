@@ -10,7 +10,7 @@ import threading
 
 # --- Configuration ---
 CONTAINER_NAME = "diagram_postgres"
-TARGET_URL = "http://localhost:5000/diagrams"
+TARGET_URL = "http://localhost:5000/api/diagrams"
 API_KEY = os.getenv("API_KEY", "default_secret_key")
 WEBHOOK_PORT = 9099
 
