@@ -11,10 +11,10 @@ groups:
           description: "The alloy container is unreachable."
 
       - alert: DatabaseDown
-        expr: up{job="postgres"} == 0
+        expr: pg_up == 0 or up{job="postgres"} == 0
         for: 0s
         labels:
           severity: critical
         annotations:
           summary: "Database Down"
-          description: "The diagram_postgres database container is unreachable."
+          description: "The diagram_postgres database or its exporter is completely unreachable."
