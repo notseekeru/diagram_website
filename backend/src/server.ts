@@ -81,12 +81,24 @@ if (process.env.NODE_ENV !== "chaos") {
 }
 
 // 3. Database Management Setup
+import { Pool } from "pg";
+
 export const pool = new Pool({
   connectionString: databaseUrl,
 
-  connectionTimeoutMillis: 1500,
-  statement_timeout: 2000,
+  max: 50,
+  min: 10,
+
+  connectionTimeoutMillis: 2000,
+  statement_timeout_ms: 2000,
   query_timeout: 2000,
+  idleTimeoutMillis: 30000,
+
+  maxUses: 10000,
+});
+
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle database client", err);
 });
 
 pool.on("error", (error: Error) => {
