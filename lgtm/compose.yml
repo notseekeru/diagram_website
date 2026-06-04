@@ -114,8 +114,9 @@ services:
       - -c
       - |
         echo -n "$ALERTMANAGER_SLACK_WEBHOOK" > /tmp/slack_webhook.txt
-
         exec /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml --storage.path=/alertmanager
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # This allows the alertmanager to send requests to the host machine, which is necessary for the webhook receiver to work when running in Docker on Windows or Mac.
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
