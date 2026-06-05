@@ -4,7 +4,7 @@
 
 - **Experiment ID:** `chaos-002`
 - **Target Component:** `diagram_postgres` (Database Engine / Connection Pool Layer)
-- **Hypothesis:** Issuing a standard graceful termination (`docker stop`) on the database container will cause Prometheus to evaluate a target scrape loss within 3 seconds, and the Node-Postgres connection pool will dynamically heal the system within 4 seconds of automatic container lifecycle resurrection.
+- **Hypothesis:** Issuing a standard graceful termination (`docker kill`) on the database container will cause Prometheus to evaluate a target scrape loss within 3 seconds, and the Node-Postgres connection pool will dynamically heal the system within 4 seconds of automatic container lifecycle resurrection.
 - **Status:** **PASSED**
 - **Execution Date:** 2026-06-04
 
@@ -12,7 +12,7 @@
 
 ## 2. Background & Problem Statement
 
-During initial platform baselining, issuing a `docker stop` command caused an infinite application hang. While the container received a standard `SIGTERM`, the combination of the local dev environment network configurations and the container's `restart: unless-stopped` policy led to a state where the database backend dropped connections abruptly before the pool could flush them.
+During initial platform baselining, issuing a `docker kill` command caused an infinite application hang. While the container received a standard `SIGTERM`, the combination of the local dev environment network configurations and the container's `restart: unless-stopped` policy led to a state where the database backend dropped connections abruptly before the pool could flush them.
 
 The `postgres_exporter` hit immediate connection timeouts, causing the core metric `pg_up` to completely disappear from Prometheus memory rather than reporting a clean `0`. This resulted in the Node backend attempting to re-use zombie sockets inside an un-rejected promise loop, locking up the application.
 
@@ -22,7 +22,7 @@ The `postgres_exporter` hit immediate connection timeouts, causing the core metr
 
 ```text
 [Fault Injection]                    [Monitoring Platform]                 [Automation Target]
-  Python Script   ──(docker stop)──►   diagram_postgres   ──(Scrape Drop)──►    Prometheus
+  Python Script   ──(docker kill)──►   diagram_postgres   ──(Scrape Drop)──►    Prometheus
        ▲                                                                         │
        │                                                                   (Alert Firing)
        │                                                                         ▼

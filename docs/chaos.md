@@ -7,13 +7,13 @@ Simple chaos testing can be performed by manually stopping containers to simulat
 ### Stop the backend container to simulate a complete outage:
 
 ```bash
-docker stop diagram_backend
+docker kill diagram_backend
 ```
 
 ### Stop the database container to simulate a database outage:
 
 ```bash
-docker stop diagram_postgres
+docker kill diagram_postgres
 ```
 
 ## Recommendations
