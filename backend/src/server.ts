@@ -88,7 +88,7 @@ export const pool = new Pool({
   min: 10,
 
   connectionTimeoutMillis: 2000,
-  statement_timeout_ms: 2000,
+  statement_timeout: 2000,
   query_timeout: 2000,
   idleTimeoutMillis: 30000,
 
