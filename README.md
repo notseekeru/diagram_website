@@ -1,3 +1,27 @@
+# Diagram Website
+
+[![React](https://img.shields.io/badge/react-17.0.2-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/typescript-4.5.4-blue.svg)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/tailwind--css-2.2.19-blue.svg)](https://tailwindcss.com/)
+[![Prettier](https://img.shields.io/badge/prettier-2.5.1-blue.svg)](https://prettier.io/)
+[![ESLint](https://img.shields.io/badge/eslint-8.4.1-blue.svg)](https://eslint.org/)
+[![Node.js](https://img.shields.io/badge/node--js-16.14.0-green.svg)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/express-4.17.3-green.svg)](https://expressjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/postgresql-14.5-blue.svg)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/docker-20.10.12-blue.svg)](https://www.docker.com/)
+
+[![OpenTelemetry](https://img.shields.io/badge/opentelemetry-1.0.0-blue.svg)](https://opentelemetry.io/)
+[![Grafana](https://img.shields.io/badge/grafana-8.5.2-blue.svg)](https://grafana.com/)
+[![Prometheus](https://img.shields.io/badge/prometheus-2.33.1-blue.svg)](https://prometheus.io/)
+[![Loki](https://img.shields.io/badge/loki-2.4.1-blue.svg)](https://grafana.com/oss/loki/)
+[![Tempo](https://img.shields.io/badge/tempo-1.0.0-blue.svg)](https://grafana.com/oss/tempo/)
+[![Alloy](https://img.shields.io/badge/alloy-1.0.0-blue.svg)](https://alloydb.google.dev/)
+[![Alertmanager](https://img.shields.io/badge/alertmanager-0.24.0-blue.svg)](https://prometheus.io/docs/alerting/latest/alertmanager/)
+[![Postgres Exporter](https://img.shields.io/badge/postgres--exporter-0.10.0-blue.svg)](https://github.com/prometheus-community/postgres_exporter)
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/yourusername/diagram-website/workflows/ci-pipeline/badge.svg)]
+
 ## Overview
 
 This repository contains the source code for my personal mermaid diagrams. I use these diagrams to visualize various concepts, processes, and systems in a clear and concise manner. The diagrams are created using the Mermaid syntax, which allows for easy creation of flowcharts, sequence diagrams, class diagrams, and more.
