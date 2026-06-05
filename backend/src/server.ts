@@ -81,8 +81,6 @@ if (process.env.NODE_ENV !== "chaos") {
 }
 
 // 3. Database Management Setup
-import { Pool } from "pg";
-
 export const pool = new Pool({
   connectionString: databaseUrl,
 
@@ -95,10 +93,6 @@ export const pool = new Pool({
   idleTimeoutMillis: 30000,
 
   maxUses: 10000,
-});
-
-pool.on("error", (err) => {
-  console.error("Unexpected error on idle database client", err);
 });
 
 pool.on("error", (error: Error) => {
