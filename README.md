@@ -20,7 +20,7 @@
 [![Postgres Exporter](https://img.shields.io/badge/postgres--exporter-0.10.0-blue.svg)](https://github.com/prometheus-community/postgres_exporter)
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI](https://github.com/notseekeru/diagram_website/actions/workflows/ci-pipeline.yml/badge.svg)]
+[![CI Status](https://github.com/notseekeru/diagram_website/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/notseekeru/diagram_website/actions)
 
 ## Overview
 
