@@ -429,7 +429,6 @@ export default function App() {
             onTitleChange={setTitle}
             onMermaidChange={setMermaidText}
             onSave={saveDiagram}
-            onRender={() => {}}
             onDelete={deleteDiagram}
             onNew={resetEditor}
             onRefresh={() => fetchDiagrams(false)}

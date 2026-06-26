@@ -15,7 +15,6 @@ type EditorPanelProps = {
   onTitleChange: (value: string) => void;
   onMermaidChange: (value: string) => void;
   onSave: () => void;
-  onRender: () => void;
   onDelete: () => void;
   onNew: () => void;
   onRefresh: () => void;
@@ -40,7 +39,6 @@ export default function EditorPanel({
   onTitleChange,
   onMermaidChange,
   onSave,
-  onRender,
   onDelete,
   onNew,
   onRefresh,
@@ -92,14 +90,6 @@ export default function EditorPanel({
             className={`${actionButtonBase} ${actionButtonIdle}`}
           >
             <FiSave className="h-4 w-4" />
-          </button>
-          <button
-            onClick={onRender}
-            title="Render preview"
-            aria-label="Render preview"
-            className={`${actionButtonBase} ${actionButtonIdle}`}
-          >
-            <FiEye className="h-4 w-4" />
           </button>
           <button
             onClick={onToggleRecent}
