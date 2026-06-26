@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mermaid-js/layout-elk": "^0.2.2",
     "axios": "^1.18.1",
     "mermaid": "^11.16.0",
     "picomatch": "^4.0.4",
