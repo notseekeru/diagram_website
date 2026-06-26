@@ -1,0 +1,5 @@
+CVE-2026-40200   # musl lib
+CVE-2026-22184   # z lib
+CVE-2026-33671   # picomatch
+CVE-2026-27135   # nghttp2
+CVE-2026-6732    # libxml2
