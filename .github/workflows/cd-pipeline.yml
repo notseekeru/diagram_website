@@ -77,9 +77,13 @@ jobs:
 
       - name: Run smoke container
         run: |
+          cat > /tmp/smoke-env-${{ matrix.service.name }}.env << EOF
+          API_KEY=ci_smoke_key
+          DATABASE_URL=postgres://p:p@localhost:5432/d
+          EOF
           docker run -d --name smoke-${{ matrix.service.name }}-${{ github.run_id }} \
             -p 127.0.0.1:${{ matrix.service.port }}:${{ matrix.service.port }} \
-            --env-file ${{ matrix.service.context }}/.env \
+            --env-file /tmp/smoke-env-${{ matrix.service.name }}.env \
             ${{ env.IMAGE }}:${{ github.sha }}
 
       - name: Wait for service
