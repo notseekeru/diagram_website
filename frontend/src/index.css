@@ -21,33 +21,3 @@
     font-family: var(--font-family-sans);
   }
 }
-
-/* Strip Mermaid's default internal blue-gray fills and tie them to your config tokens */
-.clean-svg-output svg {
-  background-color: transparent !important;
-  max-width: 100%;
-  height: auto;
-}
-
-/* Force Mermaid nodes to use your exact true-black surface and fine border colors */
-.clean-svg-output .node rect,
-.clean-svg-output .node circle,
-.clean-svg-output .node polygon,
-.clean-svg-output .node path {
-  fill: #0a0a0a !important; /* matches your theme surface */
-  stroke: #262626 !important; /* matches your theme border */
-  stroke-width: 1.5px !important;
-}
-
-/* Tie edge arrows and lines to your accentSecondary configuration */
-.clean-svg-output .edgePath .path {
-  stroke: #a3a3a3 !important;
-}
-
-.clean-svg-output .label {
-  color: #ffffff !important;
-}
-
-.clean-svg-output .edgeLabel rect {
-  fill: #0a0a0a !important;
-}

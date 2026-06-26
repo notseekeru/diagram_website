@@ -1,6 +1,5 @@
 import { useCallback, type ChangeEvent } from "react";
 import {
-  FiEye,
   FiList,
   FiPlus,
   FiRefreshCw,

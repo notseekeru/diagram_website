@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useId } from "react";
+import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import elkLayouts from "@mermaid-js/layout-elk";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
@@ -35,7 +35,6 @@ function useInView(options?: IntersectionObserverInit) {
 function InteractiveMermaid({ chart }: { chart: string }) {
   const [svgContent, setSvgContent] = useState<string>("");
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const id = useId().replace(/:/g, "");
 
   useEffect(() => {
     let isMounted = true;
@@ -66,7 +65,7 @@ function InteractiveMermaid({ chart }: { chart: string }) {
     return () => {
       isMounted = false;
     };
-  }, [chart, id]);
+  }, [chart]);
 
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
