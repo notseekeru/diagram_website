@@ -18,7 +18,7 @@ services:
       target: dev
     container_name: diagram_backend_dev
     ports:
-      - "5000:5000"
+      - "5050:5050"
     volumes:
       - ./backend:/app
       - /app/node_modules

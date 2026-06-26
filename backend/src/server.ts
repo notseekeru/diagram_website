@@ -13,7 +13,7 @@ import { Pool } from "pg";
 dotenv.config();
 
 const app = express();
-const port = Number(process.env.PORT ?? 5000);
+const port = Number(process.env.PORT ?? 5050);
 const apiKey = process.env.API_KEY ?? "";
 const databaseUrl = process.env.DATABASE_URL ?? "";
 const normalizeOrigin = (value: string) => value.trim().replace(/\/$/, "");

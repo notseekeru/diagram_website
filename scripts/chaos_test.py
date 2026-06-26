@@ -4,13 +4,12 @@ import sys
 import time
 import subprocess
 import requests
-from pathlib import Path
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
 # --- Configuration ---
 CONTAINER_NAME = "diagram_postgres"
-TARGET_URL = "http://localhost:5000/api/diagrams"
+TARGET_URL = "http://localhost:5050/api/diagrams"
 API_KEY = os.getenv("API_KEY", "default_secret_key")
 WEBHOOK_PORT = 9099
 
@@ -81,7 +80,7 @@ def main():
         timeout = time.time() + 120
         while alert_received_time is None:
             if time.time() > timeout:
-                print(f"\nAborting: Alertmanager never fired an alert within 2 minutes. Recovering container...")
+                print("\nAborting: Alertmanager never fired an alert within 2 minutes. Recovering container...")
                 run_docker_command("start", CONTAINER_NAME)
                 sys.exit(1)
             time.sleep(0.5)
@@ -90,7 +89,7 @@ def main():
         print(f"Real MTTD (Time to Detect): {mttd_ms} ms")
 
         # --- MTTR Phase ---
-        print(f"Starting container recovery via docker start...")
+        print("Starting container recovery via docker start...")
         repair_start_time = time.time_ns()
         run_docker_command("start", CONTAINER_NAME)
 

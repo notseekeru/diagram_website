@@ -16,7 +16,7 @@ services:
     build: ./backend
     container_name: diagram_backend
     ports:
-      - "5000:5000"
+      - "5050:5050"
     restart: unless-stopped
     env_file:
       - ./backend/.env

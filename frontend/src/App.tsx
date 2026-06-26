@@ -31,7 +31,7 @@ const defaultMermaid = `flowchart TB
   D --> E[Save to Postgres]
   B -- No --> F[Close tab]`;
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5000";
+const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5050";
 
 const normalizeTitle = (value: string) => {
   const trimmed = value.trim();

@@ -69,4 +69,4 @@ chaos-py:
 	cd scripts && API_KEY="zxczxc" python chaos_test.py
 
 locust:
-	locust -f scripts/locust.py --host=http://localhost:5000
+	locust -f scripts/locust.py --host=http://localhost:5050
