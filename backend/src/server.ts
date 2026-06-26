@@ -17,7 +17,11 @@ const port = Number(process.env.PORT ?? 5050);
 const apiKey = process.env.API_KEY ?? "";
 const databaseUrl = process.env.DATABASE_URL ?? "";
 const normalizeOrigin = (value: string) => value.trim().replace(/\/$/, "");
-const defaultOrigins = ["http://localhost:5223", "http://127.0.0.1:5223"];
+const defaultOrigins = [
+  "http://localhost:5223",
+  "http://127.0.0.1:5223",
+  "diagram.seekeru.tech",
+];
 const allowedOrigins = (
   process.env.FRONTEND_ORIGINS ?? defaultOrigins.join(",")
 )
