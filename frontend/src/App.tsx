@@ -6,7 +6,6 @@ import {
   useState,
   type ChangeEvent,
 } from "react";
-import mermaid, { type MermaidConfig } from "mermaid";
 import axios from "axios";
 import EditorPanel from "./components/EditorPanel";
 import PreviewPanel from "./components/PreviewPanel";
@@ -53,50 +52,19 @@ export default function App() {
   const [mermaidText, setMermaidText] = useState(defaultMermaid);
   const [diagrams, setDiagrams] = useState<DiagramSummary[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [previewSvg, setPreviewSvg] = useState("");
-  const [previewError, setPreviewError] = useState<string | null>(null);
   const [status, setStatus] = useState<StatusMessage | null>(null);
   const [isBusy, setIsBusy] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState<string | null>(null);
-  const [renderNonce, setRenderNonce] = useState(0);
 
   const autoSaveTimer = useRef<number | null>(null);
   const autoSaveInFlight = useRef(false);
   const lastSavedPayload = useRef<string>("");
-  const lastLayoutRef = useRef<"dagre" | "elk">("dagre");
-
   const hasApiKey = apiKey.trim().length > 0;
   const draftDirty = useMemo(
     () => isDraftDirty(title, mermaidText),
     [title, mermaidText],
   );
-
-  const mermaidBaseConfig = useMemo<MermaidConfig>(() => {
-    return {
-      startOnLoad: false,
-      securityLevel: "strict",
-      theme: "base", // Now correctly understood as a valid literal union type
-      fontFamily: "Space Grotesk, sans-serif",
-      // Define an empty flowchart config here so TypeScript knows it's a valid field
-      flowchart: {},
-      themeVariables: {
-        background: "#0a0a0a",
-        primaryColor: "#0a0a0a",
-        primaryBorderColor: "#262626",
-        primaryTextColor: "#f5f5f5",
-        lineColor: "#a3a3a3",
-        secondaryColor: "#0a0a0a",
-        tertiaryColor: "#0a0a0a",
-        mainBkg: "#0a0a0a",
-        nodeBorder: "#262626",
-        actorBorder: "#262626",
-        signalColor: "#ffffff",
-        signalLineColor: "#a3a3a3",
-      },
-    };
-  }, []);
 
   const api = useMemo(() => {
     return axios.create({
@@ -108,71 +76,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("diagram_api_key", apiKey);
   }, [apiKey]);
-
-  const applyMermaidLayout = useCallback(
-    (layout: "dagre" | "elk") => {
-      const isElk = layout === "elk";
-      mermaid.initialize({
-        ...mermaidBaseConfig,
-        flowchart: {
-          ...mermaidBaseConfig.flowchart, // No longer errors out
-          defaultRenderer: isElk ? "elk" : "dagre-wrapper",
-        },
-      });
-      lastLayoutRef.current = layout;
-    },
-    [mermaidBaseConfig],
-  );
-
-  const ensureMermaidLayout = useCallback(
-    (diagramText: string) => {
-      let diagramType: string | null = null;
-      try {
-        diagramType = mermaid.detectType(diagramText);
-      } catch {
-        diagramType = null;
-      }
-
-      const shouldUseElk = diagramType?.startsWith("flowchart") ?? false;
-      const nextLayout = shouldUseElk ? "elk" : "dagre";
-      if (lastLayoutRef.current !== nextLayout) {
-        applyMermaidLayout(nextLayout);
-      }
-    },
-    [applyMermaidLayout],
-  );
-
-  useEffect(() => {
-    applyMermaidLayout("dagre");
-  }, [applyMermaidLayout]);
-
-  const forceRender = useCallback(() => {
-    setRenderNonce((value: number) => value + 1);
-  }, []);
-
-  useEffect(() => {
-    if (!mermaidText.trim()) {
-      setPreviewSvg("");
-      setPreviewError(null);
-      return;
-    }
-
-    const handle = window.setTimeout(() => {
-      ensureMermaidLayout(mermaidText);
-      mermaid
-        .render(`preview-${renderNonce}-${Date.now()}`, mermaidText)
-        .then((result: { svg: string }) => {
-          setPreviewSvg(result.svg);
-          setPreviewError(null);
-        })
-        .catch((error: Error) => {
-          setPreviewSvg("");
-          setPreviewError(error.message);
-        });
-    }, 150);
-
-    return () => window.clearTimeout(handle);
-  }, [ensureMermaidLayout, mermaidText, renderNonce]);
 
   const setStatusMessage = useCallback((tone: StatusTone, message: string) => {
     setStatus({ tone, message });
@@ -199,9 +102,8 @@ export default function App() {
         title: nextTitle,
         mermaidText: nextText,
       });
-      forceRender();
     },
-    [forceRender, mermaidText],
+    [mermaidText],
   );
 
   const fetchDiagrams = useCallback(
@@ -385,28 +287,15 @@ export default function App() {
 
   useEffect(() => {
     if (!hasApiKey) {
-      setDiagrams([]);
       return;
     }
-    fetchDiagrams(true).catch(() => undefined);
+    const id = setTimeout(() => {
+      fetchDiagrams(true).catch(() => undefined);
+    }, 0);
+    return () => clearTimeout(id);
   }, [fetchDiagrams, hasApiKey]);
 
-  useEffect(() => {
-    if (!isFullscreen) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsFullscreen(false);
-      }
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [isFullscreen]);
+  // ponytail: fullscreen handling moved to PreviewPanel (InteractiveMermaid)
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -540,7 +429,7 @@ export default function App() {
             onTitleChange={setTitle}
             onMermaidChange={setMermaidText}
             onSave={saveDiagram}
-            onRender={forceRender}
+            onRender={() => {}}
             onDelete={deleteDiagram}
             onNew={resetEditor}
             onRefresh={() => fetchDiagrams(false)}
@@ -553,30 +442,15 @@ export default function App() {
             status={status}
           />
 
-          {!isFullscreen && (
-            <PreviewPanel
-              previewSvg={previewSvg}
-              previewError={previewError}
-              isFullscreen={false}
-              onToggleFullscreen={() => setIsFullscreen(true)}
-            />
-          )}
+          <PreviewPanel
+            id="editor-preview"
+            chart={mermaidText}
+            label="LIVE PREVIEW"
+            title=""
+            description=""
+          />
         </div>
       </div>
-
-      {isFullscreen && (
-        <>
-          <div className="fixed inset-0 z-40 bg-surface/95 backdrop-blur-sm" />
-          <div className="fixed inset-5 z-50">
-            <PreviewPanel
-              previewSvg={previewSvg}
-              previewError={previewError}
-              isFullscreen
-              onToggleFullscreen={() => setIsFullscreen(false)}
-            />
-          </div>
-        </>
-      )}
     </div>
   );
 }

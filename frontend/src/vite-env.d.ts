@@ -13,3 +13,5 @@ interface ImportMeta {
     },
   ) => Record<string, T>;
 }
+
+declare module "*.css";
