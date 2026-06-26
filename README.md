@@ -55,8 +55,10 @@ This repository contains the source code for my personal mermaid diagrams. I use
 
 1. Copy `backend/.env.example` to `backend/.env` and set `API_KEY` and `DATABASE_URL`.
 2. Copy `frontend/.env.example` to `frontend/.env` and set `VITE_BACKEND_URL`.
-3. Start the stack: `make dev-up`.
-4. Run migrations once: `docker exec -t diagram_backend_dev npm run migrate:up`.
+3. Copy `lgtm/.env.example` to `lgtm/.env` and set required params.
+4. Start the stack: `make dev-up`.
+5. Run migrations once: `docker exec -t diagram_backend_dev npm run migrate:up`.
+6. Activate .venv for python scripts
 
 ## API Authentication
 
