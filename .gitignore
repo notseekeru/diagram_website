@@ -10,3 +10,7 @@ dist/
 
 lgtm/alloy-data/
 lgtm/grafana-data/
+lgtm/loki-data/
+lgtm/tempo-data/
+lgtm/prometheus-data/
+lgtm/alertmanager-data/

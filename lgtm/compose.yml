@@ -10,7 +10,7 @@ services:
       - -config.file=/etc/loki/loki.yml
     volumes:
       - ./config/loki.yml:/etc/loki/loki.yml:ro
-      - loki-data:/loki
+      - ./loki-data:/loki
     networks:
       - obs-network
     restart: unless-stopped
@@ -40,7 +40,7 @@ services:
 
     volumes:
       - ./config/tempo.yml:/etc/tempo/tempo.yml:ro
-      - tempo-data:/var/tempo
+      - ./tempo-data:/var/tempo
     ports:
       - "3200:3200"
     networks:
@@ -62,7 +62,7 @@ services:
 
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
+      - ./prometheus-data:/prometheus
       - ./config/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
     networks:
       - obs-network
@@ -122,7 +122,7 @@ services:
       - "--storage.path=/alertmanager"
     volumes:
       - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-      - alertmanager-data:/alertmanager
+      - ./alertmanager-data:/alertmanager
     networks:
       - obs-network
     restart: unless-stopped
@@ -131,10 +131,3 @@ networks:
   obs-network:
     external: true
 
-volumes:
-  loki-data: {}
-  grafana-data: {}
-  tempo-data: {}
-  prometheus-data: {}
-  alloy-data: {}
-  alertmanager-data: {}

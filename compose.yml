@@ -56,7 +56,7 @@ services:
 
 networks:
   obs-network:
-    external: true
+    driver: bridge
 
 volumes:
   diagram_postgres_data:
