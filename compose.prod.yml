@@ -4,11 +4,26 @@ services:
       context: ./frontend
       target: prod
     container_name: diagram_frontend_prod
+    ports:
+      - "5223:5223"
     depends_on:
       - backend
     restart: unless-stopped
+    env_file:
+      - ./frontend/.env
+    networks:
+      - obs-network
   backend:
     build:
       context: ./backend
       target: prod
     container_name: diagram_backend_prod
+    ports:
+      - "5050:5050"
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+    networks:
+      - obs-network
