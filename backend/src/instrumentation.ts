@@ -4,7 +4,7 @@ import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 
-// 1. Explicitly grab the interval from .env (Default to 10s if missing)
+// 1. Explicitly grabs the interval from .env (Default to 10s if missing)
 const exportInterval = parseInt(
   process.env.OTEL_METRIC_EXPORT_INTERVAL || "10000",
   10,
