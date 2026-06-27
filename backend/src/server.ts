@@ -86,6 +86,11 @@ if (process.env.NODE_ENV !== "chaos") {
 
 // 3. Database Management Setup
 const pool = new Pool({
+
+  ssl: {
+    rejectUnauthorized: false // mandatory for DigitalOcean Managed DBs
+  }
+
   connectionString: databaseUrl,
 
   max: 50,
