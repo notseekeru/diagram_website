@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { exec } from "child_process";
+import { promisify } from "util";
 import express, {
   type NextFunction,
   type Request,
@@ -10,6 +11,8 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { Pool } from "pg";
+
+const execAsync = promisify(exec);
 
 // For distributed tracing replace with OpenTelemetry trace ID.
 let requestCounter = 0;
@@ -154,13 +157,17 @@ const isValidApiKey = (provided: string) => {
 
 // 4. Inbound Core Web Server Application API Routing Handlers
 app.get("/healthz", (_req: Request, res: Response) => {
+  // Always 200 so CD pipeline sees the service as up immediately.
+  // API endpoints gate on migratePromise internally.
   res.json({ status: "ok" });
 });
 
-app.use("/api", (req: Request, res: Response, next: NextFunction) => {
+app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
   if (req.method === "OPTIONS") {
     return res.sendStatus(204);
   }
+  // Block until migration finishes — first request pays the delay instead of boot.
+  await migratePromise;
   const providedKey = req.header("X-API-Key") ?? "";
   if (!isValidApiKey(providedKey)) {
     return sendError(res, req as ReqWithId, 401, "Invalid API key");
@@ -355,9 +362,32 @@ app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
   sendError(res, req as ReqWithId, 500, "Unexpected server error");
 });
 
-// Run migrations in background so server starts immediately.
-// Migrations usually complete in <1s. If they fail, log and move on.
-exec("npm run migrate:up", () => { /* noop — background task */ });
+// Run migrations async so server starts listening immediately (CD pipeline health check).
+// Retry with backoff — Postgres container may not accept connections yet.
+const migrate = async (retries = 5, delay = 1000): Promise<void> => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const { stdout, stderr } = await execAsync("npm run migrate:up");
+      console.log(stdout);
+      if (stderr) console.error("[migration:stderr]", stderr);
+      console.log("[migration] Complete");
+      return;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (attempt < retries && msg.includes("ECONNREFUSED")) {
+        console.log(`[migration] Postgres not ready (attempt ${attempt}/${retries}), retrying in ${delay}ms...`);
+        await new Promise((r) => setTimeout(r, delay));
+        delay *= 2; // exponential backoff
+        continue;
+      }
+      throw err;
+    }
+  }
+};
+const migratePromise = migrate().catch((err: Error) => {
+  console.error("[migration] Failed:", err.message);
+  process.exit(1);
+});
 
 const server = app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`);
