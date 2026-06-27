@@ -1,5 +1,4 @@
 export const up = (pgm) => {
-  pgm.sql('CREATE EXTENSION IF NOT EXISTS "pgcrypto";');
   pgm.sql(`
     CREATE TABLE IF NOT EXISTS diagrams (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
