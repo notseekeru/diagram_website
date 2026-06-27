@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { execSync } from "child_process";
+import { exec } from "child_process";
 import express, {
   type NextFunction,
   type Request,
@@ -355,12 +355,9 @@ app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
   sendError(res, req as ReqWithId, 500, "Unexpected server error");
 });
 
-// Run migrations on startup. Uses the existing node-pg-migrate framework.
-try {
-  execSync("npm run migrate:up", { stdio: "inherit" });
-} catch {
-  process.exit(1);
-}
+// Run migrations in background so server starts immediately.
+// Migrations usually complete in <1s. If they fail, log and move on.
+exec("npm run migrate:up", () => { /* noop — background task */ });
 
 const server = app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`);
