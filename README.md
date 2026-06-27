@@ -1,69 +1,86 @@
 # Diagram Website
 
-[![React](https://img.shields.io/badge/react-17.0.2-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/typescript-4.5.4-blue.svg)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/tailwind--css-2.2.19-blue.svg)](https://tailwindcss.com/)
-[![Prettier](https://img.shields.io/badge/prettier-2.5.1-blue.svg)](https://prettier.io/)
-[![ESLint](https://img.shields.io/badge/eslint-8.4.1-blue.svg)](https://eslint.org/)
-[![Node.js](https://img.shields.io/badge/node--js-16.14.0-green.svg)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/express-4.17.3-green.svg)](https://expressjs.com/)
-[![PostgreSQL](https://img.shields.io/badge/postgresql-14.5-blue.svg)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/docker-20.10.12-blue.svg)](https://www.docker.com/)
-
-[![OpenTelemetry](https://img.shields.io/badge/opentelemetry-1.0.0-blue.svg)](https://opentelemetry.io/)
-[![Grafana](https://img.shields.io/badge/grafana-8.5.2-blue.svg)](https://grafana.com/)
-[![Prometheus](https://img.shields.io/badge/prometheus-2.33.1-blue.svg)](https://prometheus.io/)
-[![Loki](https://img.shields.io/badge/loki-2.4.1-blue.svg)](https://grafana.com/oss/loki/)
-[![Tempo](https://img.shields.io/badge/tempo-1.0.0-blue.svg)](https://grafana.com/oss/tempo/)
-[![Alloy](https://img.shields.io/badge/alloy-1.0.0-blue.svg)](https://alloydb.google.dev/)
-[![Alertmanager](https://img.shields.io/badge/alertmanager-0.24.0-blue.svg)](https://prometheus.io/docs/alerting/latest/alertmanager/)
-[![Postgres Exporter](https://img.shields.io/badge/postgres--exporter-0.10.0-blue.svg)](https://github.com/prometheus-community/postgres_exporter)
-
+[![CI](https://github.com/notseekeru/diagram_website/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/notseekeru/diagram_website/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI Status](https://github.com/notseekeru/diagram_website/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/notseekeru/diagram_website/actions)
 
-## Overview
+Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and full OpenTelemetry observability stack.
 
-This repository contains the source code for my personal mermaid diagrams. I use these diagrams to visualize various concepts, processes, and systems in a clear and concise manner. The diagrams are created using the Mermaid syntax, which allows for easy creation of flowcharts, sequence diagrams, class diagrams, and more.
+## Stack
 
-## Tech Stack
+| Layer | Stack |
+|---|---|
+| **Frontend** | React 19, Mermaid.js 11, Axios, Tailwind, Vite 8, TypeScript 6 |
+| **Backend** | Express 5, pg (PostgreSQL), helmet, cors, express-rate-limit |
+| **Database** | PostgreSQL 16 (containerized) |
+| **Infra** | Docker Compose (dev + prod), nginx (prod) |
+| **Observability** | OpenTelemetry, Grafana, Prometheus, Loki, Tempo, Alloy, Alertmanager |
 
-- Mermaid.js: A JavaScript-based diagramming and charting tool that uses a simple markdown-like syntax to create diagrams.
-- Vite: A build tool that provides a fast development environment and optimized production builds.
-- React: A JavaScript library for building user interfaces, which I use to create interactive diagrams.
-- TypeScript: A typed superset of JavaScript that compiles to plain JavaScript, providing better tooling and error checking.
-- Tailwind CSS: A utility-first CSS framework that allows for rapid styling of components.
-- Prettier: An opinionated code formatter that helps maintain consistent code style across the project.
-- ESLint: A static code analysis tool that identifies and fixes problems in JavaScript code, ensuring code quality and consistency.
-- Node.js: A JavaScript runtime built on Chrome's V8 JavaScript engine, used for running the development server and build scripts.
-- Express: A minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications, used to serve the diagrams.
-- PostgreSQL: A powerful, open-source object-relational database system that uses and extends the SQL language, used for storing diagram data and user information.
-- Docker: A platform for developing, shipping, and running applications in containers, used to containerize the application for easy deployment.
+## Project Structure
 
-## Observability Stack
+```text
+├── frontend/          React SPA (Vite build → nginx in prod)
+│   ├── src/
+│   │   ├── App.tsx          main app with autosave logic
+│   │   ├── components/      EditorPanel, PreviewPanel, RecentBar
+│   │   └── types.ts
+│   ├── nginx.conf           prod: reverse proxies /api/ → backend
+│   └── Dockerfile           multi-stage: dev (Vite) + prod (nginx)
+├── backend/           Express API server
+│   ├── src/server.ts        routes, CORS, rate limit, shutdown
+│   ├── migrations/          Postgres schema (001_create_diagrams)
+│   └── Dockerfile           multi-stage: dev (tsx watch) + prod (compiled)
+├── lgtm/              Observability stack (Grafana / Loki / Tempo / Alloy / Prometheus / Alertmanager)
+├── compose.dev.yml    Dev environment
+├── compose.prod.yml   Production environment
+├── compose.yml        Shared services (postgres)
+├── scripts/           Chaos engineering (locust, fault injection)
+└── docs/              Auth, chaos, SLO docs
+```
 
-- OpenTelemetry: A collection of tools, APIs, and SDKs for instrumenting, generating, collecting, and exporting telemetry data (traces, metrics, logs) to help you analyze your software's performance and behavior.
-- Grafana: An open-source platform for monitoring and observability, used to visualize the telemetry data collected by OpenTelemetry.
-- Prometheus: An open-source systems monitoring and alerting toolkit, used to collect and store metrics data from the application.
-- Loki: A horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus, used to collect and store log data from the application.
-- Tempo: A high-scale distributed tracing backend, used to collect and store trace data from the application.
-- Alloy: A lightweight, high-performance time-series database, used to store and query the telemetry data collected by OpenTelemetry.
-- Alertmanager: A component of the Prometheus ecosystem that handles alerts sent by client applications, used to manage and route alerts based on defined rules and configurations.
-- Postgres Exporter: A Prometheus exporter for PostgreSQL metrics, used to expose database metrics to Prometheus for monitoring and alerting.
+## Quick Start
 
-## Local Development
+```bash
+# 1. Copy env files
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+cp lgtm/.env.example lgtm/.env    # if using observability
 
-1. Copy `backend/.env.example` to `backend/.env` and set `API_KEY` and `DATABASE_URL`.
-2. Copy `frontend/.env.example` to `frontend/.env` and set `VITE_BACKEND_URL`.
-3. Copy `lgtm/.env.example` to `lgtm/.env` and set required params.
-4. Start the stack: `make dev-up`.
-5. Run migrations once: `docker exec -t diagram_backend_dev npm run migrate:up`.
-6. Activate .venv for python scripts
+# 2. Start dev stack
+make dev-up
 
-## API Authentication
+# 3. Run migrations
+docker exec -t diagram_backend_dev npm run migrate:up
 
-All endpoints require `X-API-Key`. See [docs/api-auth.md](docs/api-auth.md).
+# 4. Open http://localhost:5223
+```
+
+Set `API_KEY` and `DATABASE_URL` in `backend/.env` and `VITE_BACKEND_URL=http://localhost:5050` in `frontend/.env` for local dev.
+
+## API
+
+All endpoints require `X-API-Key` header. See [docs/api-auth.md](docs/api-auth.md).
+
+| Method | Path | Action |
+|---|---|---|
+| `POST` | `/api/save-diagram` | Create diagram |
+| `PUT` | `/api/diagrams/:id` | Update diagram |
+| `GET` | `/api/diagrams` | List diagrams (paginated) |
+| `GET` | `/api/get-diagram/:id` | Get one diagram |
+| `DELETE` | `/api/diagrams/:id` | Delete diagram |
+| `GET` | `/healthz` | Health check |
+
+## Production
+
+Frontend and backend share a Docker network. Nginx serves the SPA and proxies `/api/` → backend container.
+
+```bash
+docker compose -f compose.prod.yml build
+docker compose -f compose.prod.yml up -d
+docker exec diagram_backend_prod npm run migrate:up
+```
+
+Set `VITE_BACKEND_URL=` (empty) in `frontend/.env` for same-origin API calls in prod. See the `.env.example` files for rationale.
 
 ## Chaos Engineering
 
-All chaos experiments are defined in `scripts/` and can be executed with `make chaos-run`. See [docs/chaos.md](docs/chaos.md) for more details.
+See [docs/chaos.md](docs/chaos.md). Experiments in `scripts/`, run with `make chaos-run`.
