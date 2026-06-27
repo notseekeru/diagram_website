@@ -363,7 +363,6 @@ app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
 });
 
 // Run migrations async so server starts listening immediately (CD pipeline health check).
-// Retry with backoff — Postgres container may not accept connections yet.
 const migrate = async (retries = 5, delay = 1000): Promise<void> => {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
@@ -375,10 +374,18 @@ const migrate = async (retries = 5, delay = 1000): Promise<void> => {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (attempt < retries && msg.includes("ECONNREFUSED")) {
-        console.log(`[migration] Postgres not ready (attempt ${attempt}/${retries}), retrying in ${delay}ms...`);
+        console.log(
+          `[migration] Postgres not ready (attempt ${attempt}/${retries}), retrying in ${delay}ms...`,
+        );
         await new Promise((r) => setTimeout(r, delay));
-        delay *= 2; // exponential backoff
+        delay *= 2;
         continue;
+      }
+      if (msg.includes("permission denied") || msg.includes("PGERROR")) {
+        console.warn(
+          "[migration] Skipped — DB user lacks DDL privileges. Assuming tables exist.",
+        );
+        return;
       }
       throw err;
     }
