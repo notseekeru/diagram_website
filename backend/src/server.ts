@@ -10,6 +10,11 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { Pool } from "pg";
 
+// For distributed tracing replace with OpenTelemetry trace ID.
+let requestCounter = 0;
+const nextId = () =>
+  `req-${Date.now().toString(36)}-${(++requestCounter).toString(36)}`;
+
 dotenv.config();
 
 const app = express();
@@ -43,6 +48,12 @@ if (Number.isFinite(trustProxyHops) && trustProxyHops > 0) {
 }
 
 app.disable("x-powered-by");
+
+// Attach a request ID for log correlation
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  (req as Request & { id: string }).id = nextId();
+  next();
+});
 
 // 1. CORS Management Configuration
 const corsOptions = {
@@ -85,11 +96,9 @@ if (process.env.NODE_ENV !== "chaos") {
 }
 
 // 3. Database Management Setup
+// SSL handled by connection string (?sslmode=require) for prod managed DB.
+// Local postgres container doesn't need it.
 const pool = new Pool({
-  ssl: {
-    rejectUnauthorized: false, // mandatory for DigitalOcean Managed DBs
-  },
-
   connectionString: databaseUrl,
 
   max: 50,
@@ -104,8 +113,35 @@ const pool = new Pool({
 });
 
 pool.on("error", (error: Error) => {
-  console.error("Unexpected Postgres error", error);
+  console.error("[pool] Unexpected Postgres error", error);
 });
+
+type ReqWithId = Request & { id: string };
+
+const logError = (req: ReqWithId, context: string, error: unknown) => {
+  const summary = error instanceof Error ? error.message : String(error);
+  console.error(
+    JSON.stringify({
+      requestId: req.id,
+      method: req.method,
+      path: req.originalUrl,
+      context,
+      error: summary,
+      // ponytail: full stack in NODE_ENV !== "production" to avoid leaking in prod
+      ...(process.env.NODE_ENV !== "production" &&
+        error instanceof Error && { stack: error.stack }),
+    }),
+  );
+};
+
+const sendError = (
+  res: Response,
+  req: ReqWithId,
+  status: number,
+  message: string,
+) => {
+  return res.status(status).json({ error: message, requestId: req.id });
+};
 
 const isValidApiKey = (provided: string) => {
   if (!provided || provided.length !== apiKey.length) {
@@ -126,7 +162,7 @@ app.use("/api", (req: Request, res: Response, next: NextFunction) => {
   }
   const providedKey = req.header("X-API-Key") ?? "";
   if (!isValidApiKey(providedKey)) {
-    return res.status(401).json({ error: "Invalid API key" });
+    return sendError(res, req as ReqWithId, 401, "Invalid API key");
   }
   return next();
 });
@@ -192,8 +228,8 @@ app.post("/api/save-diagram", async (req: Request, res: Response) => {
 
     return res.status(201).json({ diagram: result.rows[0] });
   } catch (error) {
-    console.error("Failed to save diagram", error);
-    return res.status(500).json({ error: "Failed to save diagram" });
+    logError(req as ReqWithId, "save-diagram", error);
+    return sendError(res, req as ReqWithId, 500, "Failed to save diagram");
   }
 });
 
@@ -233,8 +269,8 @@ app.put("/api/diagrams/:id", async (req: Request, res: Response) => {
 
     return res.json({ diagram: result.rows[0] });
   } catch (error) {
-    console.error("Failed to update diagram", error);
-    return res.status(500).json({ error: "Failed to update diagram" });
+    logError(req as ReqWithId, "update-diagram", error);
+    return sendError(res, req as ReqWithId, 500, "Failed to update diagram");
   }
 });
 
@@ -261,8 +297,8 @@ app.get("/api/get-diagram/:id", async (req: Request, res: Response) => {
 
     return res.json({ diagram: result.rows[0] });
   } catch (error) {
-    console.error("Failed to fetch diagram", error);
-    return res.status(500).json({ error: "Failed to fetch diagram" });
+    logError(req as ReqWithId, "get-diagram", error);
+    return sendError(res, req as ReqWithId, 500, "Failed to fetch diagram");
   }
 });
 
@@ -283,8 +319,8 @@ app.get("/api/diagrams", async (req: Request, res: Response) => {
 
     return res.json({ diagrams: result.rows, limit, offset });
   } catch (error) {
-    console.error("Failed to list diagrams", error);
-    return res.status(500).json({ error: "Failed to list diagrams" });
+    logError(req as ReqWithId, "list-diagrams", error);
+    return sendError(res, req as ReqWithId, 500, "Failed to list diagrams");
   }
 });
 
@@ -307,15 +343,15 @@ app.delete("/api/diagrams/:id", async (req: Request, res: Response) => {
 
     return res.status(204).send();
   } catch (error) {
-    console.error("Failed to delete diagram", error);
-    return res.status(500).json({ error: "Failed to delete diagram" });
+    logError(req as ReqWithId, "delete-diagram", error);
+    return sendError(res, req as ReqWithId, 500, "Failed to delete diagram");
   }
 });
 
 // 5. Explicit Centralized Catch-All Error Handling Middleware
-app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error("Unhandled error", error);
-  res.status(500).json({ error: "Unexpected server error" });
+app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
+  logError(req as ReqWithId, "unhandled", error);
+  sendError(res, req as ReqWithId, 500, "Unexpected server error");
 });
 
 const server = app.listen(port, () => {
