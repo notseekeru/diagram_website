@@ -85,7 +85,7 @@ if (process.env.NODE_ENV !== "chaos") {
 }
 
 // 3. Database Management Setup
-export const pool = new Pool({
+const pool = new Pool({
   connectionString: databaseUrl,
 
   max: 50,
