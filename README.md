@@ -7,12 +7,12 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 
 ## Stack
 
-| Layer | Stack |
-|---|---|
-| **Frontend** | React 19, Mermaid.js 11, Axios, Tailwind, Vite 8, TypeScript 6 |
-| **Backend** | Express 5, pg (PostgreSQL), helmet, cors, express-rate-limit |
-| **Database** | PostgreSQL 16 (containerized) |
-| **Infra** | Docker Compose (dev + prod), nginx (prod) |
+| Layer             | Stack                                                                |
+| ----------------- | -------------------------------------------------------------------- |
+| **Frontend**      | React 19, Mermaid.js 11, Axios, Tailwind, Vite 8, TypeScript 6       |
+| **Backend**       | Express 5, pg (PostgreSQL), helmet, cors, express-rate-limit         |
+| **Database**      | PostgreSQL 16 (containerized)                                        |
+| **Infra**         | Docker Compose (dev + prod), nginx (prod)                            |
 | **Observability** | OpenTelemetry, Grafana, Prometheus, Loki, Tempo, Alloy, Alertmanager |
 
 ## Project Structure
@@ -60,14 +60,14 @@ Set `API_KEY` and `DATABASE_URL` in `backend/.env` and `VITE_BACKEND_URL=http://
 
 All endpoints require `X-API-Key` header. See [docs/api-auth.md](docs/api-auth.md).
 
-| Method | Path | Action |
-|---|---|---|
-| `POST` | `/api/save-diagram` | Create diagram |
-| `PUT` | `/api/diagrams/:id` | Update diagram |
-| `GET` | `/api/diagrams` | List diagrams (paginated) |
-| `GET` | `/api/get-diagram/:id` | Get one diagram |
-| `DELETE` | `/api/diagrams/:id` | Delete diagram |
-| `GET` | `/healthz` | Health check |
+| Method   | Path                   | Action                    |
+| -------- | ---------------------- | ------------------------- |
+| `POST`   | `/api/save-diagram`    | Create diagram            |
+| `PUT`    | `/api/diagrams/:id`    | Update diagram            |
+| `GET`    | `/api/diagrams`        | List diagrams (paginated) |
+| `GET`    | `/api/get-diagram/:id` | Get one diagram           |
+| `DELETE` | `/api/diagrams/:id`    | Delete diagram            |
+| `GET`    | `/healthz`             | Health check              |
 
 ## Production
 
@@ -80,6 +80,43 @@ docker exec diagram_backend_prod npm run migrate:up
 ```
 
 Set `VITE_BACKEND_URL=` (empty) in `frontend/.env` for same-origin API calls in prod. See the `.env.example` files for rationale.
+
+## Troubleshooting
+
+### Backend returns 500 — "relation \"diagrams\" does not exist"
+
+The table hasn't been created. Run migrations:
+
+```bash
+# Local dev (if auto-creation fails)
+docker exec diagram_backend_dev npm run migrate:up
+
+# K8s prod (table auto-creates on startup now)
+kubectl exec -l app=diagram-backend -- npm run migrate:up
+```
+
+### Migration fails — "permission denied for schema public"
+
+PostgreSQL 15+ requires explicit schema grants. Connect as superuser and grant:
+
+```sql
+GRANT ALL ON SCHEMA public TO diagram;
+ALTER SCHEMA public OWNER TO diagram;
+```
+
+Then re-run the migration.
+
+### 500 on all endpoints — SSL connection error
+
+If the managed DB requires SSL but the connection string doesn't carry it, add `?sslmode=no-verify` to `DATABASE_URL`:
+
+```
+DATABASE_URL=postgresql://user:pass@host:25060/diagramdb?sslmode=no-verify
+```
+
+### Ingress 500 — "X-Forwarded-For" header without trust proxy
+
+Set `TRUST_PROXY_HOPS` in the deployment to match proxy layers (2 for cloudflared → ingress-nginx).
 
 ## Chaos Engineering
 
