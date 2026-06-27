@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { execSync } from "child_process";
 import express, {
   type NextFunction,
   type Request,
@@ -11,6 +12,7 @@ import rateLimit from "express-rate-limit";
 import { Pool } from "pg";
 
 // For distributed tracing replace with OpenTelemetry trace ID.
+let server: ReturnType<typeof app.listen>;
 let requestCounter = 0;
 const nextId = () =>
   `req-${Date.now().toString(36)}-${(++requestCounter).toString(36)}`;
@@ -354,7 +356,14 @@ app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
   sendError(res, req as ReqWithId, 500, "Unexpected server error");
 });
 
-const server = app.listen(port, () => {
+// Run migrations on startup. Uses the existing node-pg-migrate framework.
+try {
+  execSync("npm run migrate:up", { stdio: "inherit" });
+} catch {
+  process.exit(1);
+}
+
+server = app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`);
 });
 
