@@ -12,7 +12,6 @@ import rateLimit from "express-rate-limit";
 import { Pool } from "pg";
 
 // For distributed tracing replace with OpenTelemetry trace ID.
-let server: ReturnType<typeof app.listen>;
 let requestCounter = 0;
 const nextId = () =>
   `req-${Date.now().toString(36)}-${(++requestCounter).toString(36)}`;
@@ -363,7 +362,7 @@ try {
   process.exit(1);
 }
 
-server = app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`);
 });
 

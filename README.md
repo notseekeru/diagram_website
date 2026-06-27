@@ -106,18 +106,6 @@ ALTER SCHEMA public OWNER TO diagram;
 
 Then re-run the migration.
 
-### 500 on all endpoints — SSL connection error
-
-If the managed DB requires SSL but the connection string doesn't carry it, add `?sslmode=no-verify` to `DATABASE_URL`:
-
-```
-DATABASE_URL=postgresql://user:pass@host:25060/diagramdb?sslmode=no-verify
-```
-
-### Ingress 500 — "X-Forwarded-For" header without trust proxy
-
-Set `TRUST_PROXY_HOPS` in the deployment to match proxy layers (2 for cloudflared → ingress-nginx).
-
 ## Chaos Engineering
 
 See [docs/chaos.md](docs/chaos.md). Experiments in `scripts/`, run with `make chaos-run`.
