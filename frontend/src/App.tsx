@@ -432,6 +432,7 @@ export default function App() {
           <PreviewPanel
             id="editor-preview"
             chart={mermaidText}
+            label=""
             title=""
             description=""
           />
