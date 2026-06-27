@@ -388,18 +388,6 @@ export default function App() {
     <div className="min-h-screen text-slate-100 bg-surface">
       <div className="flex h-screen flex-col px-5 pb-6 pt-6 lg:px-10">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.35em] text-muted">
-              Diagram Vault
-            </p>
-            <h1 className="text-2xl font-semibold text-slate-100">
-              Mermaid Workspace
-            </h1>
-            <p className="text-xs text-muted">
-              Compact editor with elk layout and autosave.
-            </p>
-          </div>
-
           <div className="flex w-full flex-col gap-2 lg:w-auto lg:min-w-[300px]">
             <label className="text-[11px] uppercase tracking-[0.2em] text-muted">
               X-API-Key
@@ -444,7 +432,6 @@ export default function App() {
           <PreviewPanel
             id="editor-preview"
             chart={mermaidText}
-            label="LIVE PREVIEW"
             title=""
             description=""
           />
