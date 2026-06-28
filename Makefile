@@ -1,6 +1,12 @@
 DEV_CMD  = docker compose -p diagram-dev -f compose.yml -f compose.dev.yml
 PROD_CMD = docker compose -p diagram-prod -f compose.yml -f compose.prod.yml
 
+# ---------- Capture extra argument for prod-migrate-up ----------
+ARG := $(word 2, $(MAKECMDGOALS))
+# Dummy target to absorb the connection string argument
+$(ARG):   # does nothing, just prevents "No rule to make target" error
+.PHONY: prod-migrate-up $(ARG)
+
 # Linting
 
 exec:
@@ -47,8 +53,12 @@ prod-logs:
 prod-down:
 	$(PROD_CMD) down -v --rmi local
 
-prod-migrate-up:
-	sudo nix --extra-experimental-features "nix-command flakes" shell flake:nixpkgs#postgresql --command psql 'public-string-here' -c "GRANT ALL ON SCHEMA public TO diagram; GRANT ALL ON DATABASE diagramdb TO diagram;" && npm run migrate:up
+prod-migrate-up: $(ARG)
+	@if [ -z "$(ARG)" ]; then \
+		echo "ERROR: connection string required. Usage: make prod-migrate-up 'your-connection-string'"; \
+		exit 1; \
+	fi
+	sudo nix --extra-experimental-features "nix-command flakes" shell flake:nixpkgs#postgresql --command psql '$(ARG)' -c "GRANT ALL ON SCHEMA public TO diagram; GRANT ALL ON DATABASE diagramdb TO diagram;" && npm run migrate:up
 
 # Observability stack
 
@@ -61,7 +71,7 @@ lgtm-up:
 lgtm-down:
 	cd lgtm && docker compose down -v --rmi local
 
-# Obsevability and Chaos + Traffic Simulation
+# Observability and Chaos + Traffic Simulation
 
 chaos-sh:
 	cd scripts && API_KEY="zxczxc" ./chaos_test.sh
@@ -69,5 +79,7 @@ chaos-sh:
 chaos-py:
 	cd scripts && API_KEY="zxczxc" python chaos_test.py
 
+locust:
+	locust -f scripts/locust.py --host=http://localhost:5050
 locust:
 	locust -f scripts/locust.py --host=http://localhost:5050
