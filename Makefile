@@ -37,10 +37,12 @@ prod-down:
 
 prod-migrate-up:
 	@if [ -z "$(DB_URL)" ]; then \
-		echo "ERROR: DB_URL is required. Usage: make prod-migrate-up DB_URL='your-connection-string'"; \
+		echo "ERROR: DB_URL is required. Usage: make prod-migrate-up DB_URL='postgresql://doadmin:pass@host:25060/diagramdb?sslmode=require'"; \
 		exit 1; \
 	fi
-	sudo nix --extra-experimental-features "nix-command flakes" shell flake:nixpkgs#postgresql --command psql '$(DB_URL)' -c "GRANT ALL ON SCHEMA public TO diagram; GRANT ALL ON DATABASE diagramdb TO diagram;" && npm run migrate:up
+	@echo "Connecting to $(DB_URL)..."
+	sudo nix --extra-experimental-features "nix-command flakes" shell nixpkgs#postgresql --command psql '$(DB_URL)' -c "GRANT ALL ON SCHEMA public TO diagram; ALTER SCHEMA public OWNER TO diagram;"
+	nix --extra-experimental-features "nix-command flakes" shell nixpkgs#kubectl --command kubectl exec deploy/diagram-backend -- npm run migrate:up
 
 # Observability
 lgtm-logs:
