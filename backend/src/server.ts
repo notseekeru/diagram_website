@@ -131,7 +131,7 @@ const logError = (req: ReqWithId, context: string, error: unknown) => {
       path: req.originalUrl,
       context,
       error: summary,
-      // ponytail: full stack in NODE_ENV !== "production" to avoid leaking in prod
+      // AI: full stack in NODE_ENV !== "production" to avoid leaking in prod
       ...(process.env.NODE_ENV !== "production" &&
         error instanceof Error && { stack: error.stack }),
     }),
