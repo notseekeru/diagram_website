@@ -10,11 +10,6 @@ exec:
 	@echo "**---------Checking Backend...-----------**"
 	docker exec -t diagram_backend_dev sh -c "(npm run lint && npm run typecheck && npm audit) && npm outdated || true"
 
-# Migration of Postgres DB
-
-migrate-up:
-	docker exec -t diagram_backend_dev npm run migrate:up
-
 # DEV
 
 dev-build:
@@ -32,6 +27,9 @@ dev-up:
 dev-logs:
 	$(DEV_CMD) logs -f
 
+dev-migrate-up:
+	docker exec -t diagram_backend_dev npm run migrate:up
+
 # PROD
 
 prod-build:
@@ -48,6 +46,9 @@ prod-logs:
 
 prod-down:
 	$(PROD_CMD) down -v --rmi local
+
+prod-migrate-up:
+	sudo nix --extra-experimental-features "nix-command flakes" shell flake:nixpkgs#postgresql --command psql 'public-string-here' -c "GRANT ALL ON SCHEMA public TO diagram; GRANT ALL ON DATABASE diagramdb TO diagram;" && npm run migrate:up
 
 # Observability stack
 
