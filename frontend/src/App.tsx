@@ -295,8 +295,6 @@ export default function App() {
     return () => clearTimeout(id);
   }, [fetchDiagrams, hasApiKey]);
 
-  // ponytail: fullscreen handling moved to PreviewPanel (InteractiveMermaid)
-
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const isModifier = event.ctrlKey || event.metaKey;
