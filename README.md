@@ -33,8 +33,18 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 ├── compose.dev.yml    Dev environment
 ├── compose.prod.yml   Production environment
 ├── compose.yml        Shared services (postgres)
-├── scripts/           Chaos engineering (locust, fault injection)
-└── docs/              Auth, chaos, SLO docs
+├── scripts/           Chaos engineering (locust, fault injection, API pentest)
+│   ├── chaos_test.sh
+│   ├── chaos_test.py
+│   ├── locust.py
+│   └── api-pentest.sh
+├── Makefile            Dev/prod/chaos/lgtm targets
+└── docs/              Auth, chaos, SLO, pentest, traffic docs
+    ├── api-auth.md
+    ├── api-pentest.md
+    ├── chaos-*.md
+    ├── slo.md
+    └── traffic.md
 ```
 
 ## Quick Start
@@ -48,10 +58,10 @@ cp lgtm/.env.example lgtm/.env    # if using observability
 # 2. Start dev stack
 make dev-up
 
-# 3. Run migrations
-docker exec -t diagram_backend_dev npm run migrate:up
+# 3. Open http://localhost:5223
 
-# 4. Open http://localhost:5223
+> Migrations run automatically on backend startup. If they fail, run manually:
+> `docker exec -t diagram_backend_dev npm run migrate:up`
 ```
 
 Set `API_KEY` and `DATABASE_URL` in `backend/.env` and `VITE_BACKEND_URL=http://localhost:5050` in `frontend/.env` for local dev.
@@ -71,12 +81,16 @@ All endpoints require `X-API-Key` header. See [docs/api-auth.md](docs/api-auth.m
 
 ## Production
 
-Frontend and backend share a Docker network. Nginx serves the SPA and proxies `/api/` → backend container.
+Frontend and backend share a Docker network. Nginx serves the SPA and proxies `/api/` → backend container. Migrations run on startup.
 
 ```bash
 docker compose -f compose.prod.yml build
 docker compose -f compose.prod.yml up -d
-docker exec diagram_backend_prod npm run migrate:up
+```
+
+For DigitalOcean managed DBs, grant schema permissions before the first migration:
+```bash
+make prod-migrate-up DB_URL='postgresql://user:pass@host:25060/db?sslmode=require'
 ```
 
 Set `VITE_BACKEND_URL=` (empty) in `frontend/.env` for same-origin API calls in prod. See the `.env.example` files for rationale.
@@ -85,27 +99,33 @@ Set `VITE_BACKEND_URL=` (empty) in `frontend/.env` for same-origin API calls in 
 
 ### Backend returns 500 — "relation \"diagrams\" does not exist"
 
-The table hasn't been created. Run migrations:
+The table hasn't been created. Migrations run on backend startup — check startup logs for errors. If they didn't run, apply manually:
 
 ```bash
-# Local dev (if auto-creation fails)
 docker exec diagram_backend_dev npm run migrate:up
-
-# K8s prod (table auto-creates on startup now)
-kubectl exec -l app=diagram-backend -- npm run migrate:up
 ```
 
 ### Migration fails — "permission denied for schema public"
 
-PostgreSQL 15+ requires explicit schema grants. Connect as superuser and grant:
+PostgreSQL 15+ requires explicit schema grants. Use the Makefile helper:
+
+```bash
+make prod-migrate-up DB_URL='postgresql://user:pass@host:25060/db?sslmode=require'
+```
+
+Or manually as superuser:
 
 ```sql
 GRANT ALL ON SCHEMA public TO diagram;
 ALTER SCHEMA public OWNER TO diagram;
 ```
 
-Then re-run the migration.
+## Chaos Engineering & Security Testing
 
-## Chaos Engineering
+See [docs/chaos.md](docs/chaos.md) and [docs/api-pentest.md](docs/api-pentest.md).
 
-See [docs/chaos.md](docs/chaos.md). Experiments in `scripts/`, run with `make chaos-run`.
+```bash
+make chaos-sh       # Shell-based chaos tests
+make chaos-py       # Python chaos tests
+make locust         # Locust load testing
+```
