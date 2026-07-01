@@ -1,4 +1,8 @@
-import express, { type NextFunction, type Request, type Response } from "express";
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
 import dotenv from "dotenv";
 import { pool } from "./db.js";
 import { migrate } from "./migrate.js";
@@ -63,5 +67,9 @@ const shutdown = async () => {
   await pool.end();
 };
 
-process.on("SIGTERM", () => shutdown().catch((error) => console.error("Shutdown error", error)));
-process.on("SIGINT", () => shutdown().catch((error) => console.error("Shutdown error", error)));
+process.on("SIGTERM", () =>
+  shutdown().catch((error) => console.error("Shutdown error", error)),
+);
+process.on("SIGINT", () =>
+  shutdown().catch((error) => console.error("Shutdown error", error)),
+);

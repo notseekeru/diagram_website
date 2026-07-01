@@ -21,7 +21,9 @@ const defaultOrigins = [
   "http://127.0.0.1:5223",
   "diagram.seekeru.tech",
 ];
-const allowedOrigins = (process.env.FRONTEND_ORIGINS ?? defaultOrigins.join(","))
+const allowedOrigins = (
+  process.env.FRONTEND_ORIGINS ?? defaultOrigins.join(",")
+)
   .split(",")
   .map((origin: string) => normalizeOrigin(origin))
   .filter(Boolean);
@@ -52,13 +54,21 @@ export const rateLimitMiddleware =
 const apiKey = process.env.API_KEY ?? "";
 if (!apiKey) throw new Error("API_KEY is required");
 
-export const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
+export const requireApiKey = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const provided = req.header("X-API-Key") ?? "";
   if (!provided || provided.length !== apiKey.length) {
-    return res.status(401).json({ error: "Invalid API key", requestId: (req as ReqWithId).id });
+    return res
+      .status(401)
+      .json({ error: "Invalid API key", requestId: (req as ReqWithId).id });
   }
   if (!crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(apiKey))) {
-    return res.status(401).json({ error: "Invalid API key", requestId: (req as ReqWithId).id });
+    return res
+      .status(401)
+      .json({ error: "Invalid API key", requestId: (req as ReqWithId).id });
   }
   next();
 };
