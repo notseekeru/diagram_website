@@ -15,27 +15,22 @@ export const requestId = (req: Request, _res: Response, next: NextFunction) => {
   next();
 };
 
-const normalizeOrigin = (value: string) => value.trim().replace(/\/$/, "");
-const defaultOrigins = [
+const ALLOWED_ORIGINS = [
   "http://localhost:5223",
   "http://127.0.0.1:5223",
-  "diagram.seekeru.tech",
+  "https://seekeru.tech",
 ];
-const allowedOrigins = (
-  process.env.FRONTEND_ORIGINS ?? defaultOrigins.join(",")
-)
-  .split(",")
-  .map((origin: string) => normalizeOrigin(origin))
-  .filter(Boolean);
 
 export const corsMiddleware = cors({
   origin: (origin, callback) => {
+    // Allows server-to-server, Postman, and mobile app requests
     if (!origin) return callback(null, true);
-    const normalized = normalizeOrigin(origin);
-    if (allowedOrigins.includes("*") || allowedOrigins.includes(normalized)) {
+
+    if (ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
     }
-    return callback(null, false);
+
+    return callback(new Error("Not allowed by CORS"));
   },
   allowedHeaders: ["Content-Type", "X-API-Key"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
