@@ -7,7 +7,6 @@ import express, {
   type Response,
   Router,
 } from "express";
-import { z, ZodError } from "zod/v3";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -45,42 +44,26 @@ type DiagramRow = {
   updated_at: string;
 };
 
-// --- Schemas -----------------------------------------------------------------
-const uuidSchema = z.string().regex(/^[0-9a-f-]{36}$/i, "Invalid UUID format");
-const mermaidSchema = z
-  .string()
-  .trim()
-  .min(1, "mermaidText is required")
-  .max(20_000, "mermaidText exceeds 20,000 characters");
-const titleIn = z.string().trim().min(1).max(255).optional();
-
-const saveDiagramSchema = z
-  .object({ title: titleIn, mermaidText: mermaidSchema })
-  .transform((d) => ({
-    title: d.title ?? "Untitled Diagram",
-    mermaidText: d.mermaidText,
-  }));
-
-const updateDiagramSchema = z
-  .object({ id: uuidSchema, title: titleIn, mermaidText: mermaidSchema })
-  .transform((d) => ({
-    id: d.id,
-    title: d.title ?? "Untitled Diagram",
-    mermaidText: d.mermaidText,
-  }));
-
-const idParamSchema = z.object({ id: uuidSchema });
-
-const paginationSchema = z
-  .object({
-    limit: z.coerce.number().int().min(1).max(100).optional(),
-    offset: z.coerce.number().int().min(0).optional(),
-  })
-  .transform((d) => ({ limit: d.limit ?? 25, offset: d.offset ?? 0 }));
-
 // --- Helpers -----------------------------------------------------------------
-const fze = (err: ZodError) =>
-  err.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join("; ");
+const uuidRe = /^[0-9a-f-]{36}$/i;
+
+const validUuid = (v: unknown): v is string =>
+  typeof v === "string" && uuidRe.test(v);
+
+const validMermaid = (v: unknown): v is string => {
+  if (typeof v !== "string") return false;
+  const trimmed = v.trim();
+  return trimmed.length >= 1 && trimmed.length <= 20_000;
+};
+
+const cleanTitle = (v: unknown): string => {
+  if (typeof v !== "string") return "Untitled Diagram";
+  const s = v.trim().slice(0, 255);
+  return s || "Untitled Diagram";
+};
+
+const toPosInt = (v: unknown, fallback: number): number =>
+  Math.max(parseInt(String(v ?? ""), 10) || fallback, 0);
 
 const logErr = (req: Request, ctx: string, error: unknown) =>
   console.error(
@@ -140,15 +123,15 @@ app.get("/healthz", (_req: Request, res: Response) =>
 const router = Router();
 
 router.post("/save-diagram", async (req: Request, res: Response) => {
-  const parsed = saveDiagramSchema.safeParse(req.body);
-  if (!parsed.success)
-    return res.status(400).json({ error: fze(parsed.error) });
+  const { mermaidText } = req.body;
+  if (!validMermaid(mermaidText))
+    return res.status(400).json({ error: "mermaidText is required (1-20,000 chars)" });
 
-  const { title, mermaidText } = parsed.data;
+  const title = cleanTitle(req.body.title);
   try {
     const result = await pool.query<DiagramRow>(
       "INSERT INTO diagrams (title, mermaid_text) VALUES ($1, $2) RETURNING id, title, mermaid_text, created_at, updated_at",
-      [title, mermaidText],
+      [title, mermaidText.trim()],
     );
     return res.status(201).json({ diagram: result.rows[0] });
   } catch (error) {
@@ -158,17 +141,19 @@ router.post("/save-diagram", async (req: Request, res: Response) => {
 });
 
 router.put("/diagrams/:id", async (req: Request, res: Response) => {
-  const pc = idParamSchema.safeParse(req.params);
-  if (!pc.success) return res.status(400).json({ error: fze(pc.error) });
+  const { id } = req.params;
+  if (!validUuid(id))
+    return res.status(400).json({ error: "Invalid UUID" });
 
-  const bc = updateDiagramSchema.safeParse({ ...req.body, id: pc.data.id });
-  if (!bc.success) return res.status(400).json({ error: fze(bc.error) });
+  const { mermaidText } = req.body;
+  if (!validMermaid(mermaidText))
+    return res.status(400).json({ error: "mermaidText is required (1-20,000 chars)" });
 
-  const { id, title, mermaidText } = bc.data;
+  const title = cleanTitle(req.body.title);
   try {
     const result = await pool.query<DiagramRow>(
       "UPDATE diagrams SET title = $1, mermaid_text = $2, updated_at = NOW() WHERE id = $3 RETURNING id, title, mermaid_text, created_at, updated_at",
-      [title, mermaidText, id],
+      [title, mermaidText.trim(), id],
     );
     if (!result.rows.length)
       return res.status(404).json({ error: "Diagram not found" });
@@ -180,10 +165,10 @@ router.put("/diagrams/:id", async (req: Request, res: Response) => {
 });
 
 router.get("/get-diagram/:id", async (req: Request, res: Response) => {
-  const pc = idParamSchema.safeParse(req.params);
-  if (!pc.success) return res.status(400).json({ error: fze(pc.error) });
+  const { id } = req.params;
+  if (!validUuid(id))
+    return res.status(400).json({ error: "Invalid UUID" });
 
-  const { id } = pc.data;
   try {
     const result = await pool.query<DiagramRow>(
       "SELECT id, title, mermaid_text, created_at, updated_at FROM diagrams WHERE id = $1",
@@ -199,11 +184,9 @@ router.get("/get-diagram/:id", async (req: Request, res: Response) => {
 });
 
 router.get("/diagrams", async (req: Request, res: Response) => {
-  const parsed = paginationSchema.safeParse(req.query);
-  if (!parsed.success)
-    return res.status(400).json({ error: fze(parsed.error) });
+  const limit = Math.min(toPosInt(req.query.limit, 25), 100);
+  const offset = toPosInt(req.query.offset, 0);
 
-  const { limit, offset } = parsed.data;
   try {
     const result = await pool.query<Omit<DiagramRow, "mermaid_text">>(
       "SELECT id, title, created_at, updated_at FROM diagrams ORDER BY created_at DESC LIMIT $1 OFFSET $2",
@@ -217,10 +200,10 @@ router.get("/diagrams", async (req: Request, res: Response) => {
 });
 
 router.delete("/diagrams/:id", async (req: Request, res: Response) => {
-  const pc = idParamSchema.safeParse(req.params);
-  if (!pc.success) return res.status(400).json({ error: fze(pc.error) });
+  const { id } = req.params;
+  if (!validUuid(id))
+    return res.status(400).json({ error: "Invalid UUID" });
 
-  const { id } = pc.data;
   try {
     const result = await pool.query<{ id: string }>(
       "DELETE FROM diagrams WHERE id = $1 RETURNING id",
