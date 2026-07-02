@@ -72,7 +72,9 @@ const logErr = (req: Request, ctx: string, error: unknown) =>
   );
 
 const sErr = (res: Response, req: Request, status: number, msg: string) =>
-  res.status(status).json({ error: msg, requestId: (req as Request & { id: string }).id });
+  res
+    .status(status)
+    .json({ error: msg, requestId: (req as Request & { id: string }).id });
 
 // --- App ---------------------------------------------------------------------
 const app = express();
@@ -118,7 +120,9 @@ const router = Router();
 router.post("/save-diagram", async (req: Request, res: Response) => {
   const { mermaidText } = req.body;
   if (!validMermaid(mermaidText))
-    return res.status(400).json({ error: "mermaidText is required (1-20,000 chars)" });
+    return res
+      .status(400)
+      .json({ error: "mermaidText is required (1-20,000 chars)" });
 
   const title = cleanTitle(req.body.title);
   try {
@@ -135,12 +139,13 @@ router.post("/save-diagram", async (req: Request, res: Response) => {
 
 router.put("/diagrams/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  if (!validUuid(id))
-    return res.status(400).json({ error: "Invalid UUID" });
+  if (!validUuid(id)) return res.status(400).json({ error: "Invalid UUID" });
 
   const { mermaidText } = req.body;
   if (!validMermaid(mermaidText))
-    return res.status(400).json({ error: "mermaidText is required (1-20,000 chars)" });
+    return res
+      .status(400)
+      .json({ error: "mermaidText is required (1-20,000 chars)" });
 
   const title = cleanTitle(req.body.title);
   try {
@@ -159,8 +164,7 @@ router.put("/diagrams/:id", async (req: Request, res: Response) => {
 
 router.get("/get-diagram/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  if (!validUuid(id))
-    return res.status(400).json({ error: "Invalid UUID" });
+  if (!validUuid(id)) return res.status(400).json({ error: "Invalid UUID" });
 
   try {
     const result = await pool.query<DiagramRow>(
@@ -194,8 +198,7 @@ router.get("/diagrams", async (req: Request, res: Response) => {
 
 router.delete("/diagrams/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  if (!validUuid(id))
-    return res.status(400).json({ error: "Invalid UUID" });
+  if (!validUuid(id)) return res.status(400).json({ error: "Invalid UUID" });
 
   try {
     const result = await pool.query<{ id: string }>(
@@ -218,7 +221,10 @@ app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
     provided.length !== API_KEY.length ||
     !crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(API_KEY))
   )
-    return res.status(401).json({ error: "Invalid API key", requestId: (req as Request & { id: string }).id });
+    return res.status(401).json({
+      error: "Invalid API key",
+      requestId: (req as Request & { id: string }).id,
+    });
   next();
 });
 app.use("/api", router);
