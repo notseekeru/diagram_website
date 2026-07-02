@@ -58,12 +58,10 @@ const cleanTitle = (v: unknown): string => {
 const toPosInt = (v: unknown, fallback: number): number =>
   Math.max(parseInt(String(v ?? ""), 10) || fallback, 0);
 
-const reqId = (req: Request): string => (req as Request & { id: string }).id;
-
 const logErr = (req: Request, ctx: string, error: unknown) =>
   console.error(
     JSON.stringify({
-      requestId: reqId(req),
+      requestId: (req as Request & { id: string }).id,
       method: req.method,
       path: req.originalUrl,
       context: ctx,
@@ -74,7 +72,7 @@ const logErr = (req: Request, ctx: string, error: unknown) =>
   );
 
 const sErr = (res: Response, req: Request, status: number, msg: string) =>
-  res.status(status).json({ error: msg, requestId: reqId(req) });
+  res.status(status).json({ error: msg, requestId: (req as Request & { id: string }).id });
 
 // --- App ---------------------------------------------------------------------
 const app = express();
@@ -220,7 +218,7 @@ app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
     provided.length !== API_KEY.length ||
     !crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(API_KEY))
   )
-    return res.status(401).json({ error: "Invalid API key", requestId: reqId(req) });
+    return res.status(401).json({ error: "Invalid API key", requestId: (req as Request & { id: string }).id });
   next();
 });
 app.use("/api", router);
