@@ -55,12 +55,7 @@ export const requireApiKey = (
   next: NextFunction,
 ) => {
   const provided = req.header("X-API-Key") ?? "";
-  if (!provided || provided.length !== apiKey.length) {
-    return res
-      .status(401)
-      .json({ error: "Invalid API key", requestId: (req as ReqWithId).id });
-  }
-  if (!crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(apiKey))) {
+  if (provided.length !== apiKey.length || !crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(apiKey))) {
     return res
       .status(401)
       .json({ error: "Invalid API key", requestId: (req as ReqWithId).id });

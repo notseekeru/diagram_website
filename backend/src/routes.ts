@@ -1,4 +1,5 @@
 import { type Request, type Response, Router } from "express";
+import { z, ZodError } from "zod/v3";
 import { pool } from "./db.js";
 import { type ReqWithId, logError, sendError } from "./middleware.js";
 
@@ -13,39 +14,43 @@ type DiagramRow = {
 };
 type DiagramSummaryRow = Omit<DiagramRow, "mermaid_text">;
 
-const normalizeTitle = (value: unknown) => {
-  if (typeof value !== "string") return "Untitled Diagram";
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : "Untitled Diagram";
-};
+const uuidSchema = z.string().regex(/^[0-9a-f-]{36}$/i, "Invalid UUID format");
+const mermaidSchema = z
+  .string()
+  .trim()
+  .min(1, "mermaidText is required")
+  .max(20_000, "mermaidText exceeds 20,000 characters");
+const titleIn = z.string().trim().min(1).max(255).optional();
 
-const normalizeMermaid = (value: unknown) => {
-  if (typeof value !== "string") return "";
-  return value.trim();
-};
+const saveDiagramSchema = z
+  .object({ title: titleIn, mermaidText: mermaidSchema })
+  .transform((d) => ({
+    title: d.title ?? "Untitled Diagram",
+    mermaidText: d.mermaidText,
+  }));
+const updateDiagramSchema = z
+  .object({ id: uuidSchema, title: titleIn, mermaidText: mermaidSchema })
+  .transform((d) => ({
+    id: d.id,
+    title: d.title ?? "Untitled Diagram",
+    mermaidText: d.mermaidText,
+  }));
+const idParamSchema = z.object({ id: uuidSchema });
+const paginationSchema = z
+  .object({
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    offset: z.coerce.number().int().min(0).optional(),
+  })
+  .transform((d) => ({ limit: d.limit ?? 25, offset: d.offset ?? 0 }));
 
-const parsePagination = (req: Request) => {
-  const limit = Math.min(
-    Number.parseInt(req.query.limit as string, 10) || 25,
-    100,
-  );
-  const offset = Math.max(
-    Number.parseInt(req.query.offset as string, 10) || 0,
-    0,
-  );
-  return { limit, offset };
-};
-
-const uuidRe = /^[0-9a-f-]{36}$/i;
-const validId = (id: string) => uuidRe.test(id);
+const formatZodError = (err: ZodError) =>
+  err.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join("; ");
 
 router.post("/save-diagram", async (req: Request, res: Response) => {
-  const title = normalizeTitle(req.body?.title);
-  const mermaidText = normalizeMermaid(req.body?.mermaidText);
-  if (!mermaidText)
-    return res.status(400).json({ error: "mermaidText is required" });
-  if (mermaidText.length > 20_000)
-    return res.status(413).json({ error: "mermaidText is too large" });
+  const parsed = saveDiagramSchema.safeParse(req.body);
+  if (!parsed.success)
+    return res.status(400).json({ error: formatZodError(parsed.error) });
+  const { title, mermaidText } = parsed.data;
   try {
     const result = await pool.query<DiagramRow>(
       "INSERT INTO diagrams (title, mermaid_text) VALUES ($1, $2) RETURNING id, title, mermaid_text, created_at, updated_at",
@@ -59,15 +64,16 @@ router.post("/save-diagram", async (req: Request, res: Response) => {
 });
 
 router.put("/diagrams/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!validId(id))
-    return res.status(400).json({ error: "Invalid diagram id" });
-  const title = normalizeTitle(req.body?.title);
-  const mermaidText = normalizeMermaid(req.body?.mermaidText);
-  if (!mermaidText)
-    return res.status(400).json({ error: "mermaidText is required" });
-  if (mermaidText.length > 20_000)
-    return res.status(413).json({ error: "mermaidText is too large" });
+  const paramsCheck = idParamSchema.safeParse(req.params);
+  if (!paramsCheck.success)
+    return res.status(400).json({ error: formatZodError(paramsCheck.error) });
+  const bodyCheck = updateDiagramSchema.safeParse({
+    ...req.body,
+    id: paramsCheck.data.id,
+  });
+  if (!bodyCheck.success)
+    return res.status(400).json({ error: formatZodError(bodyCheck.error) });
+  const { id, title, mermaidText } = bodyCheck.data;
   try {
     const result = await pool.query<DiagramRow>(
       "UPDATE diagrams SET title = $1, mermaid_text = $2, updated_at = NOW() WHERE id = $3 RETURNING id, title, mermaid_text, created_at, updated_at",
@@ -83,9 +89,10 @@ router.put("/diagrams/:id", async (req: Request, res: Response) => {
 });
 
 router.get("/get-diagram/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!validId(id))
-    return res.status(400).json({ error: "Invalid diagram id" });
+  const paramsCheck = idParamSchema.safeParse(req.params);
+  if (!paramsCheck.success)
+    return res.status(400).json({ error: formatZodError(paramsCheck.error) });
+  const { id } = paramsCheck.data;
   try {
     const result = await pool.query<DiagramRow>(
       "SELECT id, title, mermaid_text, created_at, updated_at FROM diagrams WHERE id = $1",
@@ -101,7 +108,10 @@ router.get("/get-diagram/:id", async (req: Request, res: Response) => {
 });
 
 router.get("/diagrams", async (req: Request, res: Response) => {
-  const { limit, offset } = parsePagination(req);
+  const parsed = paginationSchema.safeParse(req.query);
+  if (!parsed.success)
+    return res.status(400).json({ error: formatZodError(parsed.error) });
+  const { limit, offset } = parsed.data;
   try {
     const result = await pool.query<DiagramSummaryRow>(
       "SELECT id, title, created_at, updated_at FROM diagrams ORDER BY created_at DESC LIMIT $1 OFFSET $2",
@@ -115,9 +125,10 @@ router.get("/diagrams", async (req: Request, res: Response) => {
 });
 
 router.delete("/diagrams/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!validId(id))
-    return res.status(400).json({ error: "Invalid diagram id" });
+  const paramsCheck = idParamSchema.safeParse(req.params);
+  if (!paramsCheck.success)
+    return res.status(400).json({ error: formatZodError(paramsCheck.error) });
+  const { id } = paramsCheck.data;
   try {
     const result = await pool.query<{ id: string }>(
       "DELETE FROM diagrams WHERE id = $1 RETURNING id",
