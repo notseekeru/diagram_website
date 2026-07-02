@@ -13,13 +13,6 @@ import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import { pool } from "./db.js";
 
-// Extend Express Request to carry a per-request ID added by middleware
-declare module "express" {
-  interface Request {
-    id: string;
-  }
-}
-
 dotenv.config();
 const execAsync = promisify(exec);
 
@@ -65,10 +58,12 @@ const cleanTitle = (v: unknown): string => {
 const toPosInt = (v: unknown, fallback: number): number =>
   Math.max(parseInt(String(v ?? ""), 10) || fallback, 0);
 
+const reqId = (req: Request): string => (req as Request & { id: string }).id;
+
 const logErr = (req: Request, ctx: string, error: unknown) =>
   console.error(
     JSON.stringify({
-      requestId: req.id,
+      requestId: reqId(req),
       method: req.method,
       path: req.originalUrl,
       context: ctx,
@@ -79,7 +74,7 @@ const logErr = (req: Request, ctx: string, error: unknown) =>
   );
 
 const sErr = (res: Response, req: Request, status: number, msg: string) =>
-  res.status(status).json({ error: msg, requestId: req.id });
+  res.status(status).json({ error: msg, requestId: reqId(req) });
 
 // --- App ---------------------------------------------------------------------
 const app = express();
@@ -93,7 +88,7 @@ const nextId = () =>
   `req-${Date.now().toString(36)}-${(++requestCounter).toString(36)}`;
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
-  req.id = nextId();
+  (req as Request & { id: string }).id = nextId();
   next();
 });
 
@@ -225,7 +220,7 @@ app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
     provided.length !== API_KEY.length ||
     !crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(API_KEY))
   )
-    return res.status(401).json({ error: "Invalid API key", requestId: req.id });
+    return res.status(401).json({ error: "Invalid API key", requestId: reqId(req) });
   next();
 });
 app.use("/api", router);
