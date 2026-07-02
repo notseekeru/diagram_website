@@ -31,7 +31,7 @@
     "node-pg-migrate": "^8.0.4",
     "pg": "^8.22.0",
     "picomatch": "4.0.4",
-    "zod": "4.4.3"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
