@@ -51,6 +51,24 @@ const cleanTitle = (v: unknown): string => {
 const toPosInt = (v: unknown, fallback: number): number =>
   Math.max(parseInt(String(v ?? ""), 10) || fallback, 0);
 
+const logErr = (req: Request, ctx: string, error: unknown) =>
+  console.error(
+    JSON.stringify({
+      requestId: (req as Request & { id: string }).id,
+      method: req.method,
+      path: req.originalUrl,
+      context: ctx,
+      error: error instanceof Error ? error.message : String(error),
+      ...(process.env.NODE_ENV !== "production" &&
+        error instanceof Error && { stack: error.stack }),
+    }),
+  );
+
+const sErr = (res: Response, req: Request, status: number, msg: string) =>
+  res
+    .status(status)
+    .json({ error: msg, requestId: (req as Request & { id: string }).id });
+
 // --- App ---------------------------------------------------------------------
 const app = express();
 
