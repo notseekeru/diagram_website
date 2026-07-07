@@ -21,13 +21,6 @@ const PORT = Number(process.env.PORT ?? 5050);
 const API_KEY = process.env.API_KEY ?? "";
 if (!API_KEY) throw new Error("API_KEY is required");
 
-const proxyHops = parseInt(process.env.TRUST_PROXY_HOPS ?? "0", 10);
-const ALLOWED_ORIGINS = [
-  "http://localhost:5223",
-  "http://127.0.0.1:5223",
-  "https://seekeru.tech",
-];
-
 // --- Types -------------------------------------------------------------------
 type DiagramRow = {
   id: string;
@@ -58,28 +51,10 @@ const cleanTitle = (v: unknown): string => {
 const toPosInt = (v: unknown, fallback: number): number =>
   Math.max(parseInt(String(v ?? ""), 10) || fallback, 0);
 
-const logErr = (req: Request, ctx: string, error: unknown) =>
-  console.error(
-    JSON.stringify({
-      requestId: (req as Request & { id: string }).id,
-      method: req.method,
-      path: req.originalUrl,
-      context: ctx,
-      error: error instanceof Error ? error.message : String(error),
-      ...(process.env.NODE_ENV !== "production" &&
-        error instanceof Error && { stack: error.stack }),
-    }),
-  );
-
-const sErr = (res: Response, req: Request, status: number, msg: string) =>
-  res
-    .status(status)
-    .json({ error: msg, requestId: (req as Request & { id: string }).id });
-
 // --- App ---------------------------------------------------------------------
 const app = express();
 
-if (proxyHops > 0) app.set("trust proxy", proxyHops);
+app.set("trust proxy", 2);
 app.disable("x-powered-by");
 
 // --- Middleware ---------------------------------------------------------------
@@ -94,10 +69,11 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 
 app.use(
   cors({
-    origin: (o, cb) => {
-      if (!o || ALLOWED_ORIGINS.includes(o)) return cb(null, true);
-      cb(new Error("Not allowed by CORS"));
-    },
+    origin: [
+      "http://localhost:5223",
+      "http://127.0.0.1:5223",
+      "https://diagram.seekeru.tech",
+    ],
     allowedHeaders: ["Content-Type", "X-API-Key"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     maxAge: 600,
