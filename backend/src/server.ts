@@ -31,10 +31,8 @@ type DiagramRow = {
 };
 
 // --- Helpers -----------------------------------------------------------------
-const uuidRe = /^[0-9a-f-]{36}$/i;
-
 const validUuid = (v: unknown): v is string =>
-  typeof v === "string" && uuidRe.test(v);
+  typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v);
 
 const validMermaid = (v: unknown): v is string => {
   if (typeof v !== "string") return false;
