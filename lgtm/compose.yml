@@ -91,7 +91,6 @@ services:
       - /etc/alloy/config.alloy
 
     volumes:
-      # The data volume is not mounted to docker volume due to permission issues on linux.
       - ./config/config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc:/host/proc:ro
@@ -115,8 +114,9 @@ services:
       - |
         echo -n "$ALERTMANAGER_SLACK_WEBHOOK" > /tmp/slack_webhook.txt
         exec /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml --storage.path=/alertmanager
-    extra_hosts:
-      - "host.docker.internal:host-gateway" # This allows the alertmanager to send requests to the host machine, which is necessary for the webhook receiver to work when running in Docker on Windows or Mac.
+    # Linux: host-gateway resolves automatically, no extra_hosts needed (kept for macOS/Windows compat)
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
