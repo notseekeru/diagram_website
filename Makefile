@@ -59,3 +59,5 @@ chaos-py:
 	cd scripts && API_KEY="zxczxc" python chaos_test.py
 locust:
 	locust -f scripts/locust.py --host=http://localhost:5050
+nix-locust:
+	nix-shell -p 'python3.withPackages (ps: with ps; [ locust python-dotenv ])' --run 'locust -f scripts/locust.py --host=http://localhost:5050'
