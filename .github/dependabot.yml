@@ -5,31 +5,21 @@ updates:
     directory: "/backend"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
-    # Bunde all backend npm updates into a single PR
-    groups:
-      backend-deps:
-        patterns:
-          - "*"
+    open-pull-requests-limit: 10
   # Frontend npm packages
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
-    # Bundle all frontend npm updates into a single PR
-    groups:
-      frontend-deps:
-        patterns:
-          - "*"
+    open-pull-requests-limit: 10
   # Docker dependencies
   - package-ecosystem: "docker"
     directory: "/backend"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
   - package-ecosystem: "docker"
     directory: "/frontend"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
