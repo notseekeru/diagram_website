@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-surface: #0a0a0a;
-  --color-border: #262626;
-  --color-accent: #ffffff;
-  --color-accent-secondary: #a3a3a3;
-  --color-muted: #737373;
-  --font-family-sans: "Space Grotesk", system-ui, sans-serif;
-  --font-family-mono: "IBM Plex Mono", monospace;
-  --background-image-grid-pattern: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-  --background-size-grid-size: 40px 40px;
+    --color-surface: #0a0a0a;
+    --color-border: #262626;
+    --color-accent: #ffffff;
+    --color-accent-secondary: #a3a3a3;
+    --color-muted: #737373;
+    --font-family-sans: "Space Grotesk", system-ui, sans-serif;
+    --font-family-mono: "IBM Plex Mono", monospace;
+    --background-image-grid-pattern: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    --background-size-grid-size: 40px 40px;
 }
 
 @layer base {
-  body {
-    background-color: var(--color-surface);
-    color: #f1f5f9;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-family: var(--font-family-sans);
-  }
+    body {
+        background-color: var(--color-surface);
+        color: #f1f5f9;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: var(--font-family-sans);
+    }
 }
