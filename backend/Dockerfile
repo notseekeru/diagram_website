@@ -1,5 +1,5 @@
 # --- BASE IMAGE FOR BACKEND
-FROM node:lts-alpine3.23 AS base
+FROM node:lts-alpine3.24 AS base
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ FROM base AS prune
 RUN npm run build && npm prune --omit=dev
 
 # --- PROD NEW IMAGE // RUN AS NODE USER
-FROM node:lts-alpine3.23 AS prod
+FROM node:lts-alpine3.24 AS prod
 
 RUN apk add --no-cache --upgrade musl musl-utils zlib
 
