@@ -1,6 +1,6 @@
-import crypto from "crypto";
-import { exec } from "child_process";
-import { promisify } from "util";
+import crypto from "node:crypto";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import express, { type NextFunction, type Request, type Response, Router } from "express";
 import cors from "cors";
 import helmet from "helmet";
