@@ -1,5 +1,5 @@
 export const up = (pgm) => {
-  pgm.sql(`
+    pgm.sql(`
     CREATE TABLE IF NOT EXISTS diagrams (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       title TEXT NOT NULL DEFAULT 'Untitled Diagram',
@@ -11,5 +11,5 @@ export const up = (pgm) => {
 };
 
 export const down = (pgm) => {
-  pgm.sql("DROP TABLE IF EXISTS diagrams;");
+    pgm.sql("DROP TABLE IF EXISTS diagrams;");
 };
