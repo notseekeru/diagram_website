@@ -55,19 +55,19 @@ export default function EditorPanel({ title, mermaidText, onTitleChange, onMerma
                     <p className="text-[10px] text-muted">Ctrl+S save. Ctrl+D delete.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    <button onClick={onSave} disabled={isBusy || !hasApiKey} title="Save (Ctrl+S)" aria-label="Save (Ctrl+S)" className={`${actionButtonBase} ${actionButtonIdle}`}>
+                    <button type="button" onClick={onSave} disabled={isBusy || !hasApiKey} title="Save (Ctrl+S)" aria-label="Save (Ctrl+S)" className={`${actionButtonBase} ${actionButtonIdle}`}>
                         <FiSave className="h-4 w-4" />
                     </button>
-                    <button onClick={onToggleRecent} title={isRecentOpen ? "Hide recent" : "Show recent"} aria-label={isRecentOpen ? "Hide recent" : "Show recent"} aria-pressed={isRecentOpen} className={`${actionButtonBase} ${isRecentOpen ? actionButtonActive : actionButtonIdle}`}>
+                    <button type="button" onClick={onToggleRecent} title={isRecentOpen ? "Hide recent" : "Show recent"} aria-label={isRecentOpen ? "Hide recent" : "Show recent"} aria-pressed={isRecentOpen} className={`${actionButtonBase} ${isRecentOpen ? actionButtonActive : actionButtonIdle}`}>
                         <FiList className="h-4 w-4" />
                     </button>
-                    <button onClick={onRefresh} disabled={isBusy} title="Refresh list" aria-label="Refresh list" className={`${actionButtonBase} ${actionButtonIdle}`}>
+                    <button type="button" onClick={onRefresh} disabled={isBusy} title="Refresh list" aria-label="Refresh list" className={`${actionButtonBase} ${actionButtonIdle}`}>
                         <FiRefreshCw className="h-4 w-4" />
                     </button>
-                    <button onClick={onNew} title="New draft" aria-label="New draft" className={`${actionButtonBase} ${actionButtonIdle}`}>
+                    <button type="button" onClick={onNew} title="New draft" aria-label="New draft" className={`${actionButtonBase} ${actionButtonIdle}`}>
                         <FiPlus className="h-4 w-4" />
                     </button>
-                    <button onClick={onDelete} disabled={isBusy || !selectedId} title="Delete (Ctrl+D)" aria-label="Delete (Ctrl+D)" className={`${actionButtonBase} ${actionButtonIdle}`}>
+                    <button type="button" onClick={onDelete} disabled={isBusy || !selectedId} title="Delete (Ctrl+D)" aria-label="Delete (Ctrl+D)" className={`${actionButtonBase} ${actionButtonIdle}`}>
                         <FiTrash2 className="h-4 w-4" />
                     </button>
                 </div>
@@ -81,18 +81,22 @@ export default function EditorPanel({ title, mermaidText, onTitleChange, onMerma
 
             <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3">
                 <div className="flex flex-col">
-                    <label className="text-[11px] uppercase tracking-[0.2em] text-muted">Title</label>
-                    <input type="text" value={title} onChange={handleTitleChange} className="mt-1.5 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/30" />
+                    <label className="text-[11px] uppercase tracking-[0.2em] text-muted">
+                        Title
+                        <input type="text" value={title} onChange={handleTitleChange} className="mt-1.5 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/30" />
+                    </label>
                 </div>
 
                 <div className="flex min-h-0 flex-1 flex-col">
-                    <label className="text-[11px] uppercase tracking-[0.2em] text-muted">Mermaid source</label>
-                    <textarea
-                        value={mermaidText}
-                        onChange={handleMermaidChange}
-                        className="mt-1.5 w-full flex-1 min-h-0 resize-none rounded-xl border border-border bg-surface/70 p-3 font-mono text-xs text-slate-100 outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/30"
-                        placeholder="Type your flowchart/sequence code here..."
-                    />
+                    <label className="text-[11px] uppercase tracking-[0.2em] text-muted">
+                        Mermaid source
+                        <textarea
+                            value={mermaidText}
+                            onChange={handleMermaidChange}
+                            className="mt-1.5 w-full flex-1 min-h-0 resize-none rounded-xl border border-border bg-surface/70 p-3 font-mono text-xs text-slate-100 outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/30"
+                            placeholder="Type your flowchart/sequence code here..."
+                        />
+                    </label>
                 </div>
             </div>
         </section>

@@ -182,7 +182,7 @@ app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
 });
 
 // --- Startup -----------------------------------------------------------------
-const migrate = async (retries = 5, delay = 1000): Promise<void> => {
+const migrate = async (retries = 5, baseDelay = 1000): Promise<void> => {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
             await execAsync("npm run migrate:up");
@@ -190,8 +190,7 @@ const migrate = async (retries = 5, delay = 1000): Promise<void> => {
         } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             if (attempt < retries && msg.includes("ECONNREFUSED")) {
-                await new Promise((r) => setTimeout(r, delay));
-                delay *= 2;
+                await new Promise((r) => setTimeout(r, baseDelay * 2 ** (attempt - 1)));
                 continue;
             }
             if (msg.includes("permission denied") || msg.includes("PGERROR")) return;
