@@ -72,7 +72,8 @@ function InteractiveMermaid({ chart }: { chart: string }) {
 
     const viewer = (
         <div className="relative flex items-center justify-center w-full h-full [&>svg]:max-w-none [&>svg]:w-full [&>svg]:h-full">
-            <div className="w-full h-full flex items-center justify-center" dangerouslySetInnerHTML={{ __html: svgContent }} />
+            {/* biome-ignore lint/security/noDangerouslySetInnerHtml: mermaid renders raw SVG */}
+            <div className="w-full h-full flex items-center justify-center" dangerouslySetInnerHTML={{ __html: svgContent }} role="img" aria-label="Diagram preview" />
         </div>
     );
 
@@ -86,8 +87,8 @@ function InteractiveMermaid({ chart }: { chart: string }) {
                             {viewer}
                         </TransformComponent>
                     </TransformWrapper>
-                    <button onClick={toggleFullscreen} className="absolute top-4 right-4 z-10 rounded bg-zinc-800/80 p-2 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" aria-label="Enter fullscreen">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <button type="button" onClick={toggleFullscreen} className="absolute top-4 right-4 z-10 rounded bg-zinc-800/80 p-2 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" aria-label="Enter fullscreen">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
                         </svg>
                     </button>
@@ -103,8 +104,8 @@ function InteractiveMermaid({ chart }: { chart: string }) {
                                 {viewer}
                             </TransformComponent>
                         </TransformWrapper>
-                        <button onClick={toggleFullscreen} className="absolute top-4 right-4 z-50 rounded bg-zinc-800/80 p-2 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" aria-label="Exit fullscreen">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <button type="button" onClick={toggleFullscreen} className="absolute top-4 right-4 z-50 rounded bg-zinc-800/80 p-2 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" aria-label="Exit fullscreen">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                 <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
                             </svg>
                         </button>

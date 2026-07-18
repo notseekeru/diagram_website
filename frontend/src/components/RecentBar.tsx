@@ -18,7 +18,7 @@ export default function RecentBar({ diagrams, selectedId, onSelect }: RecentBarP
                     <p className="text-xs text-muted">No diagrams yet.</p>
                 ) : (
                     diagrams.map((diagram) => (
-                        <button key={diagram.id} onClick={() => onSelect(diagram.id)} className={`w-full rounded-lg border px-3 py-2 text-left text-xs transition ${diagram.id === selectedId ? "border-accent/60 bg-accent/10" : "border-border bg-surface/70 hover:border-accent/40"}`}>
+                        <button type="button" key={diagram.id} onClick={() => onSelect(diagram.id)} className={`w-full rounded-lg border px-3 py-2 text-left text-xs transition ${diagram.id === selectedId ? "border-accent/60 bg-accent/10" : "border-border bg-surface/70 hover:border-accent/40"}`}>
                             <div className="truncate font-medium text-slate-100">{diagram.title}</div>
                         </button>
                     ))
