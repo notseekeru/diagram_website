@@ -1,8 +1,8 @@
+import elkLayouts from "@mermaid-js/layout-elk";
+import mermaid from "mermaid";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import mermaid from "mermaid";
-import elkLayouts from "@mermaid-js/layout-elk";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 mermaid.registerLayoutLoaders(elkLayouts);
 
