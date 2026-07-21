@@ -56,3 +56,13 @@ jobs:
 
       - name: Audit (informational)
         run: npm audit --audit-level=moderate || true
+
+      - name: Scan with Trivy (filesystem)
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/${{ matrix.service }}:/workspace \
+            -v ${{ github.workspace }}/${{ matrix.service }}/.trivyignore:/.trivyignore \
+            aquasec/trivy:0.41.0 filesystem \
+            --severity HIGH,CRITICAL --exit-code 1 \
+            --ignorefile /.trivyignore \
+            /workspace
