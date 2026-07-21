@@ -1,2 +1,5 @@
 CVE-2026-33671   # picomatch vulnerability
 CVE-2026-12151   # undici: Denial of Service due to unbounded memory growth via WebSocket
+CVE-2026-13149   # brace-expansion: DoS via exponential-time complexity (transitive via rimraf/glob, not an attack surface)
+CVE-2026-59873   # tar: node-tar DoS via crafted gzip bomb (not installed in npm tree or Alpine)
+CVE-2026-59874   # tar: node-tar DoS via malformed archive header (not installed in npm tree or Alpine)

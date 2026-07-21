@@ -3,3 +3,6 @@ CVE-2026-22184   # z lib
 CVE-2026-33671   # picomatch
 CVE-2026-27135   # nghttp2
 CVE-2026-6732    # libxml2
+CVE-2026-13149   # brace-expansion: DoS via exponential-time complexity (transitive, not an attack surface)
+CVE-2026-59873   # tar: node-tar DoS via crafted gzip bomb (transitive, not an attack surface)
+CVE-2026-59874   # tar: node-tar DoS via malformed archive header (transitive, not an attack surface)
