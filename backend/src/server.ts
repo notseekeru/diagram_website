@@ -1,6 +1,4 @@
-import { exec } from "node:child_process";
 import crypto from "node:crypto";
-import { promisify } from "node:util";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { type NextFunction, type Request, type Response, Router } from "express";
@@ -9,8 +7,6 @@ import helmet from "helmet";
 import { pool } from "./db.js";
 
 dotenv.config();
-const execAsync = promisify(exec);
-
 // --- Config ------------------------------------------------------------------
 const PORT = Number(process.env.PORT ?? 5050);
 const API_KEY = process.env.API_KEY ?? "";
@@ -163,8 +159,7 @@ router.delete("/diagrams/:id", async (req: Request, res: Response) => {
     }
 });
 
-app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
-    await migratePromise;
+app.use("/api", (req: Request, res: Response, next: NextFunction) => {
     const provided = req.header("X-API-Key") ?? "";
     if (provided.length !== API_KEY.length || !crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(API_KEY)))
         return res.status(401).json({
@@ -175,35 +170,7 @@ app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
 });
 app.use("/api", router);
 
-// --- Error handler -----------------------------------------------------------
-app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
-    logErr(req, "unhandled", error);
-    sErr(res, req, 500, "Unexpected server error");
-});
-
 // --- Startup -----------------------------------------------------------------
-const migrate = async (retries = 5, baseDelay = 1000): Promise<void> => {
-    for (let attempt = 1; attempt <= retries; attempt++) {
-        try {
-            await execAsync("npm run migrate:up");
-            return;
-        } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
-            if (attempt < retries && msg.includes("ECONNREFUSED")) {
-                await new Promise((r) => setTimeout(r, baseDelay * 2 ** (attempt - 1)));
-                continue;
-            }
-            if (msg.includes("permission denied") || msg.includes("PGERROR")) return;
-            throw err;
-        }
-    }
-};
-
-const migratePromise = migrate().catch((err: Error) => {
-    console.error("[migration] Failed:", err.message);
-    process.exit(1);
-});
-
 const server = app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
 
 const shutdown = async () => {
