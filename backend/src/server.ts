@@ -66,7 +66,7 @@ const api = Router();
 
 api.post("/save-diagram", async (req: Request, res: Response) => {
     const { mermaidText } = req.body;
-    if (!validMermaid(mermaidText)) return res.status(400).json({ error: "mermaidText is required (1-20,000 chars)" });
+    if (!validMermaid(mermaidText)) return res.status(400).json({ error: "mermaidText is required (1-10,000 chars)" });
 
     const title = typeof req.body.title === "string" ? req.body.title.trim().slice(0, 255) || "Untitled Diagram" : "Untitled Diagram";
     try {
@@ -83,7 +83,7 @@ api.put("/diagrams/:id", async (req: Request, res: Response) => {
     if (!validUuid(id)) return res.status(400).json({ error: "Invalid UUID" });
 
     const { mermaidText } = req.body;
-    if (!validMermaid(mermaidText)) return res.status(400).json({ error: "mermaidText is required (1-20,000 chars)" });
+    if (!validMermaid(mermaidText)) return res.status(400).json({ error: "mermaidText is required (1-10,000 chars)" });
 
     const title = typeof req.body.title === "string" ? req.body.title.trim().slice(0, 255) || "Untitled Diagram" : "Untitled Diagram";
     try {
