@@ -62,9 +62,9 @@ if (process.env.NODE_ENV !== "chaos") app.use(rateLimit({ windowMs: 60000, limit
 app.get("/healthz", (_req: Request, res: Response) => res.json({ status: "ok" }));
 
 // --- Routes ------------------------------------------------------------------
-const router = Router();
+const api = Router();
 
-router.post("/save-diagram", async (req: Request, res: Response) => {
+api.post("/save-diagram", async (req: Request, res: Response) => {
     const { mermaidText } = req.body;
     if (!validMermaid(mermaidText)) return res.status(400).json({ error: "mermaidText is required (1-20,000 chars)" });
 
@@ -78,7 +78,7 @@ router.post("/save-diagram", async (req: Request, res: Response) => {
     }
 });
 
-router.put("/diagrams/:id", async (req: Request, res: Response) => {
+api.put("/diagrams/:id", async (req: Request, res: Response) => {
     const { id } = req.params;
     if (!validUuid(id)) return res.status(400).json({ error: "Invalid UUID" });
 
@@ -96,7 +96,7 @@ router.put("/diagrams/:id", async (req: Request, res: Response) => {
     }
 });
 
-router.get("/get-diagram/:id", async (req: Request, res: Response) => {
+api.get("/get-diagram/:id", async (req: Request, res: Response) => {
     const { id } = req.params;
     if (!validUuid(id)) return res.status(400).json({ error: "Invalid UUID" });
 
@@ -110,7 +110,7 @@ router.get("/get-diagram/:id", async (req: Request, res: Response) => {
     }
 });
 
-router.get("/diagrams", async (req: Request, res: Response) => {
+api.get("/diagrams", async (req: Request, res: Response) => {
     const limit = Math.min(Math.max(Number.parseInt(String(req.query.limit ?? ""), 10) || 25, 0), 100);
     const offset = Math.max(Number.parseInt(String(req.query.offset ?? ""), 10) || 0, 0);
 
@@ -123,7 +123,7 @@ router.get("/diagrams", async (req: Request, res: Response) => {
     }
 });
 
-router.delete("/diagrams/:id", async (req: Request, res: Response) => {
+api.delete("/diagrams/:id", async (req: Request, res: Response) => {
     const { id } = req.params;
     if (!validUuid(id)) return res.status(400).json({ error: "Invalid UUID" });
 
@@ -139,11 +139,10 @@ router.delete("/diagrams/:id", async (req: Request, res: Response) => {
 
 app.use("/api", (req: Request, res: Response, next: NextFunction) => {
     const provided = req.header("X-API-Key") ?? "";
-    if (provided.length !== API_KEY.length || !crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(API_KEY)))
-        return res.status(401).json({ error: "Invalid API key" });
+    if (provided.length !== API_KEY.length || !crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(API_KEY))) return res.status(401).json({ error: "Invalid API key" });
     next();
 });
-app.use("/api", router);
+app.use("/api", api);
 
 // --- Startup -----------------------------------------------------------------
 const server = app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
