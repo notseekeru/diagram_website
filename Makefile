@@ -1,13 +1,16 @@
 DEV_CMD  = docker compose -p diagram-dev -f compose.yml -f compose.dev.yml
 PROD_CMD = docker compose -p diagram-prod -f compose.yml -f compose.prod.yml
 
-# Linting
 exec:
 	@echo "**---------Checking Frontend...-----------**"
 	docker exec -t diagram_frontend_dev sh -c "(npm run lint && npm run typecheck && npm audit) && npm outdated || true && npm prune"
 	
 	@echo "**---------Checking Backend...-----------**"
 	docker exec -t diagram_backend_dev sh -c "(npm run lint && npm run typecheck && npm audit) && npm outdated || true && npm prune"
+
+lint:
+	docker exec -t auth_frontend_dev sh -c "npm run lint"
+	docker exec -t auth_backend_dev sh -c "npm run lint"
 
 # DEV
 build:
