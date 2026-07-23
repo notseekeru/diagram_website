@@ -50,7 +50,7 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
     const statusClass = status ? statusStyles[status.tone] : "";
 
     return (
-        <section className="flex h-full flex-col rounded-xl border border-border bg-surface/90 p-3 shadow-xl">
+        <section className="flex h-full min-h-0 flex-col rounded-xl border border-border bg-surface/90 p-3 shadow-xl">
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <div>

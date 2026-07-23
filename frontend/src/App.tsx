@@ -320,7 +320,9 @@ export default function App() {
         };
     }, [applyServerDiagram, buildPayload, createDiagram, draftDirty, fetchDiagrams, hasApiKey, mermaidText, selectedId, setStatusMessage, updateDiagram]);
 
-    const layoutClass = isRecentOpen ? "lg:grid-cols-[200px_minmax(0,1fr)_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]";
+    const layoutClass = isRecentOpen
+        ? "grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[200px_minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-none"
+        : "grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-none";
 
     const handleApiKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
         setApiKey(event.target.value);

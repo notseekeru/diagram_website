@@ -100,7 +100,7 @@ interface PreviewPanelProps {
 // ── Exported component ───────────────────────────────────────────
 export default function PreviewPanel({ id, chart }: PreviewPanelProps) {
     return (
-        <section className="flex h-full flex-col rounded-xl border border-border bg-surface/90 p-3 shadow-xl">
+        <section className="flex h-full min-h-0 flex-col rounded-xl border border-border bg-surface/90 p-3 shadow-xl">
             <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">Preview</h2>
             <div className="mt-3 flex flex-1 min-h-0 flex-col" id={id}>
                 <InteractiveMermaid chart={chart} />
