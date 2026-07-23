@@ -57,7 +57,6 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
                         <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">Editor</h2>
                         <p className="text-[10px] text-muted">Ctrl+S save. Ctrl+D delete.</p>
                     </div>
-                    {selectedId && <span className="font-mono bg-surface border border-border px-1.5 py-0.5 rounded text-slate-300 text-[11px]">ID: {selectedId.slice(0, 8)}...</span>}
                     {lastAutoSave && <span className="text-[11px] text-muted">Autosaved at {lastAutoSave}</span>}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -79,9 +78,10 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
                 </div>
             </div>
 
-            {status && (
-                <div className="mt-2">
-                    <span className={`rounded-full border px-2 py-0.5 text-xs transition-all ${statusClass}`}>{status.message}</span>
+            {(selectedId || status) && (
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                    {selectedId && <span className="font-mono bg-surface border border-border px-1.5 py-0.5 rounded text-slate-300 text-[11px]">ID: {selectedId.slice(0, 8)}...</span>}
+                    {status && <span className={`rounded-full border px-2 py-0.5 text-xs transition-all ${statusClass}`}>{status.message}</span>}
                 </div>
             )}
 
