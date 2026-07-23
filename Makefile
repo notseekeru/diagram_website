@@ -22,7 +22,7 @@ buildcache:
 down:
 	$(DEV_CMD) down
 
-PORTS = 5050 5223 5432
+PORTS = 3100 5273 5432
 
 check-ports:
 	@scripts/port-claimer.sh --self $(DEV_PROJECT) $(PORTS)
@@ -69,6 +69,6 @@ chaos-sh:
 chaos-py:
 	cd scripts && API_KEY="zxczxc" python chaos_test.py
 locust:
-	locust -f scripts/locust.py --host=http://localhost:5050
+	locust -f scripts/locust.py --host=http://localhost:3100
 nix-locust:
-	nix-shell -p 'python3.withPackages (ps: with ps; [ locust python-dotenv ])' --run 'locust -f scripts/locust.py --host=http://localhost:5050'
+	nix-shell -p 'python3.withPackages (ps: with ps; [ locust python-dotenv ])' --run 'locust -f scripts/locust.py --host=http://localhost:3100'

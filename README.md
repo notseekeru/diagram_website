@@ -58,13 +58,13 @@ cp lgtm/.env.example lgtm/.env    # if using observability
 # 2. Start dev stack
 make dev-up
 
-# 3. Open http://localhost:5223
+# 3. Open http://localhost:5273
 
 > Migrations run automatically on backend startup. If they fail, run manually:
 > `docker exec -t diagram_backend_dev npm run migrate:up`
 ```
 
-Set `API_KEY` and `DATABASE_URL` in `backend/.env` and `VITE_BACKEND_URL=http://localhost:5050` in `frontend/.env` for local dev.
+Set `API_KEY` and `DATABASE_URL` in `backend/.env` and `VITE_BACKEND_URL=http://localhost:3100` in `frontend/.env` for local dev.
 
 ## API
 

@@ -19,7 +19,7 @@ export default defineConfig({
     },
     server: {
         host: "0.0.0.0",
-        port: 5223,
+        port: 5273,
         allowedHosts: ["host.docker.internal", "localhost"],
         watch: {
             usePolling: true,

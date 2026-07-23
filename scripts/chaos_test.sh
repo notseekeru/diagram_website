@@ -4,7 +4,7 @@ set -euo pipefail
 # --- Configuration ---
 CONTAINER_NAME="diagram_postgres"
 ALERTMANAGER_WEBHOOK_URL="http://localhost:9093/api/v1/alerts"
-TARGET_URL="http://localhost:5050/diagrams"
+TARGET_URL="http://localhost:3100/diagrams"
 API_KEY="${API_KEY:-default_secret_key}" # Fixed: Fallback avoids crash under 'set -u'
 
 # --- Fault Injection ---

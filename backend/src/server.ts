@@ -5,7 +5,7 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { pool } from "./db.js";
 
-const PORT = Number(process.env.PORT ?? 5050);
+const PORT = Number(process.env.PORT ?? 3100);
 const API_KEY = process.env.API_KEY ?? "";
 if (!API_KEY) throw new Error("API_KEY is required");
 
@@ -42,7 +42,7 @@ app.disable("x-powered-by");
 
 app.use(
     cors({
-        origin: ["http://localhost:5223", "http://127.0.0.1:5223", "https://diagram.seekeru.tech"],
+        origin: ["http://localhost:5273", "http://127.0.0.1:5273", "https://diagram.seekeru.tech"],
         allowedHeaders: ["Content-Type", "X-API-Key"],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         maxAge: 600,

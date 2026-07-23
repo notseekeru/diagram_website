@@ -5,7 +5,7 @@ services:
       target: dev
     container_name: diagram_frontend_dev
     ports:
-      - "5223:5223"
+      - "5273:5273"
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -20,7 +20,7 @@ services:
       target: dev
     container_name: diagram_backend_dev
     ports:
-      - "5050:5050"
+      - "3100:3100"
     volumes:
       - ./backend:/app
       - /app/node_modules

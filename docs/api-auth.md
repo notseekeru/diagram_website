@@ -15,7 +15,7 @@ All API endpoints require an API key sent via the `X-API-Key` header.
 ### Save a diagram
 
 ```bash
-curl -X POST http://localhost:5050/api/save-diagram \
+curl -X POST http://localhost:3100/api/save-diagram \
   -H "Content-Type: application/json" \
   -H "X-API-Key: YOUR_KEY_HERE" \
   -d '{"title":"Sample","mermaidText":"flowchart TB\nA-->B"}'
@@ -24,21 +24,21 @@ curl -X POST http://localhost:5050/api/save-diagram \
 ### List diagrams
 
 ```bash
-curl http://localhost:5050/api/diagrams \
+curl http://localhost:3100/api/diagrams \
   -H "X-API-Key: YOUR_KEY_HERE"
 ```
 
 ### Fetch a diagram
 
 ```bash
-curl http://localhost:5050/api/get-diagram/DIAGRAM_ID \
+curl http://localhost:3100/api/get-diagram/DIAGRAM_ID \
   -H "X-API-Key: YOUR_KEY_HERE"
 ```
 
 ### Update a diagram
 
 ```bash
-curl -X PUT http://localhost:5050/api/diagrams/DIAGRAM_ID \
+curl -X PUT http://localhost:3100/api/diagrams/DIAGRAM_ID \
   -H "Content-Type: application/json" \
   -H "X-API-Key: YOUR_KEY_HERE" \
   -d '{"title":"Updated","mermaidText":"flowchart TB\nA-->B"}'
@@ -47,6 +47,6 @@ curl -X PUT http://localhost:5050/api/diagrams/DIAGRAM_ID \
 ### Delete a diagram
 
 ```bash
-curl -X DELETE http://localhost:5050/api/diagrams/DIAGRAM_ID \
+curl -X DELETE http://localhost:3100/api/diagrams/DIAGRAM_ID \
   -H "X-API-Key: YOUR_KEY_HERE"
 ```

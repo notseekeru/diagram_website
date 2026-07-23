@@ -16,7 +16,7 @@ COPY --chown=node:node . .
 # --- DEV // RUN AS NODE USER
 FROM base AS dev
 
-EXPOSE 5050
+EXPOSE 3100
 
 CMD ["npm", "run", "dev:otel"]
 

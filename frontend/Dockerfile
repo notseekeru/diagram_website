@@ -16,7 +16,7 @@ COPY --chown=node:node . .
 # --- DEV AS NODE USER
 FROM base AS dev
 
-EXPOSE 5223
+EXPOSE 5273
 
 CMD ["npm", "run", "dev", "--", "--host"]
 

@@ -5,7 +5,7 @@ services:
       target: prod
     container_name: diagram_frontend_prod
     ports:
-      - "5223:5223"
+      - "5273:5273"
     depends_on:
       - backend
     restart: unless-stopped
@@ -19,7 +19,7 @@ services:
       target: prod
     container_name: diagram_backend_prod
     ports:
-      - "5050:5050"
+      - "3100:3100"
     restart: unless-stopped
     env_file:
       - ./backend/.env

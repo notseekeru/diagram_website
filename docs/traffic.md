@@ -15,13 +15,13 @@ All API endpoints require an API key sent via the `X-API-Key` header.
 ### Loop at /api/diagrams with invalid key (Status code)
 
 ```bash
-START=$SECONDS; while [ $((SECONDS - START)) -lt 10 ]; do curl -H "X-API-Key: invalid_key" -s -o /dev/null -w "%{http_code}\n" http://localhost:5050/api/diagrams; sleep 0.5; done
+START=$SECONDS; while [ $((SECONDS - START)) -lt 10 ]; do curl -H "X-API-Key: invalid_key" -s -o /dev/null -w "%{http_code}\n" http://localhost:3100/api/diagrams; sleep 0.5; done
 ```
 
 ### Loop at /api/diagrams with valid key (Status code)
 
 ```bash
-START=$SECONDS; while [ $((SECONDS - START)) -lt 10 ]; do curl -H "X-API-Key: zxczxc" -s -o /dev/null -w "%{http_code}\n" http://localhost:5050/api/diagrams; sleep 0.5; done
+START=$SECONDS; while [ $((SECONDS - START)) -lt 10 ]; do curl -H "X-API-Key: zxczxc" -s -o /dev/null -w "%{http_code}\n" http://localhost:3100/api/diagrams; sleep 0.5; done
 ```
 
 ## Recommendations

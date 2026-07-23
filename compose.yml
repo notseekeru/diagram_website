@@ -3,7 +3,7 @@ services:
     build: ./frontend
     container_name: diagram_frontend
     ports:
-      - "5223:5223"
+      - "5273:5273"
     depends_on:
       - backend
     restart: unless-stopped
@@ -16,7 +16,7 @@ services:
     build: ./backend
     container_name: diagram_backend
     ports:
-      - "5050:5050"
+      - "3100:3100"
     restart: unless-stopped
     env_file:
       - ./backend/.env
