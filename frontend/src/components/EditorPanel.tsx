@@ -3,6 +3,8 @@ import { FiList, FiPlus, FiRefreshCw, FiSave, FiTrash2 } from "react-icons/fi";
 import type { StatusMessage, StatusTone } from "../types";
 
 type EditorPanelProps = {
+    apiKey: string;
+    onApiKeyChange: (event: ChangeEvent<HTMLInputElement>) => void;
     title: string;
     mermaidText: string;
     onTitleChange: (value: string) => void;
@@ -26,7 +28,7 @@ const statusStyles: Record<StatusTone, string> = {
     error: "border-rose-500/40 bg-rose-500/10 text-rose-200",
 };
 
-export default function EditorPanel({ title, mermaidText, onTitleChange, onMermaidChange, onSave, onDelete, onNew, onRefresh, onToggleRecent, isBusy, hasApiKey, isRecentOpen, selectedId, lastAutoSave, status }: EditorPanelProps) {
+export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText, onTitleChange, onMermaidChange, onSave, onDelete, onNew, onRefresh, onToggleRecent, isBusy, hasApiKey, isRecentOpen, selectedId, lastAutoSave, status }: EditorPanelProps) {
     const handleTitleChange = useCallback(
         (event: ChangeEvent<HTMLInputElement>) => {
             onTitleChange(event.target.value);
@@ -80,6 +82,19 @@ export default function EditorPanel({ title, mermaidText, onTitleChange, onMerma
             </div>
 
             <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3">
+                <div className="flex flex-col">
+                    <label className="text-[11px] uppercase tracking-[0.2em] text-muted">
+                        X-API-Key
+                        <input
+                            type="password"
+                            value={apiKey}
+                            onChange={onApiKeyChange}
+                            placeholder="paste your api key"
+                            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-slate-100 placeholder:text-muted shadow-sm outline-none transition focus:border-accentSecondary/60 focus:ring-2 focus:ring-accent/10"
+                        />
+                    </label>
+                </div>
+
                 <div className="flex flex-col">
                     <label className="text-[11px] uppercase tracking-[0.2em] text-muted">
                         Title

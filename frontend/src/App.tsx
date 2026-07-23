@@ -333,25 +333,12 @@ export default function App() {
     return (
         <div className="min-h-screen text-slate-100 bg-surface">
             <div className="flex h-screen flex-col px-5 pb-6 pt-6 lg:px-10">
-                <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex w-full flex-col gap-2 lg:w-auto lg:min-w-[300px]">
-                        <label className="text-[11px] uppercase tracking-[0.2em] text-muted">
-                            X-API-Key
-                            <input
-                                type="password"
-                                value={apiKey}
-                                onChange={handleApiKeyChange}
-                                placeholder="paste your api key"
-                                className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-slate-100 placeholder:text-muted shadow-sm outline-none transition focus:border-accentSecondary/60 focus:ring-2 focus:ring-accent/10"
-                            />
-                        </label>
-                    </div>
-                </header>
-
-                <div className={`mt-4 grid flex-1 min-h-0 gap-4 ${layoutClass}`}>
+                <div className={`grid flex-1 min-h-0 gap-4 ${layoutClass}`}>
                     {isRecentOpen && <RecentBar diagrams={diagrams} selectedId={selectedId} onSelect={loadDiagram} />}
 
                     <EditorPanel
+                        apiKey={apiKey}
+                        onApiKeyChange={handleApiKeyChange}
                         title={title}
                         mermaidText={mermaidText}
                         onTitleChange={setTitle}
