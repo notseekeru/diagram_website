@@ -59,7 +59,6 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
                     </div>
                     {selectedId && <span className="font-mono bg-surface border border-border px-1.5 py-0.5 rounded text-slate-300 text-[11px]">ID: {selectedId.slice(0, 8)}...</span>}
                     {lastAutoSave && <span className="text-[11px] text-muted">Autosaved at {lastAutoSave}</span>}
-                    {status && <span className={`rounded-full border px-2 py-0.5 text-xs transition-all ${statusClass}`}>{status.message}</span>}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     <button type="button" onClick={onSave} disabled={isBusy || !hasApiKey} title="Save (Ctrl+S)" aria-label="Save (Ctrl+S)" className={`${actionButtonBase} ${actionButtonIdle}`}>
@@ -79,6 +78,12 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
                     </button>
                 </div>
             </div>
+
+            {status && (
+                <div className="mt-2">
+                    <span className={`rounded-full border px-2 py-0.5 text-xs transition-all ${statusClass}`}>{status.message}</span>
+                </div>
+            )}
 
             <div className="mt-2 flex min-h-0 flex-1 flex-col gap-3">
                 <div className="flex flex-col">
