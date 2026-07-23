@@ -8,7 +8,7 @@ type RecentBarProps = {
 
 export default function RecentBar({ diagrams, selectedId, onSelect }: RecentBarProps) {
     return (
-        <aside className="border-gradient flex h-full flex-col rounded-xl bg-surface/90 p-3">
+        <aside className="border-gradient flex h-full min-h-0 flex-col rounded-xl bg-surface/90 p-3">
             <div className="flex items-center justify-between">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">Recent</h2>
                 <span className="text-xs text-muted">{diagrams.length}</span>
