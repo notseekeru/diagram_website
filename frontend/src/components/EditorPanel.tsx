@@ -51,10 +51,15 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
 
     return (
         <section className="flex h-full flex-col rounded-xl border border-border bg-surface/90 p-3 shadow-xl">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                    <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">Editor</h2>
-                    <p className="text-[10px] text-muted">Ctrl+S save. Ctrl+D delete.</p>
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <div>
+                        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">Editor</h2>
+                        <p className="text-[10px] text-muted">Ctrl+S save. Ctrl+D delete.</p>
+                    </div>
+                    {selectedId && <span className="font-mono bg-surface border border-border px-1.5 py-0.5 rounded text-slate-300 text-[11px]">ID: {selectedId.slice(0, 8)}...</span>}
+                    {lastAutoSave && <span className="text-[11px] text-muted">Autosaved at {lastAutoSave}</span>}
+                    {status && <span className={`rounded-full border px-2 py-0.5 text-xs transition-all ${statusClass}`}>{status.message}</span>}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     <button type="button" onClick={onSave} disabled={isBusy || !hasApiKey} title="Save (Ctrl+S)" aria-label="Save (Ctrl+S)" className={`${actionButtonBase} ${actionButtonIdle}`}>
@@ -75,13 +80,7 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
                 </div>
             </div>
 
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-muted min-h-[24px]">
-                {selectedId && <span className="font-mono bg-surface border border-border px-1.5 py-0.5 rounded text-slate-300">ID: {selectedId.slice(0, 8)}...</span>}
-                {lastAutoSave && <span>Autosaved at {lastAutoSave}</span>}
-                {status && <span className={`rounded-full border px-2 py-0.5 text-xs transition-all ${statusClass}`}>{status.message}</span>}
-            </div>
-
-            <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3">
+            <div className="mt-2 flex min-h-0 flex-1 flex-col gap-3">
                 <div className="flex flex-col">
                     <label className="text-[11px] uppercase tracking-[0.2em] text-muted">
                         X-API-Key
