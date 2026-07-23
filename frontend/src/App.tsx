@@ -320,9 +320,7 @@ export default function App() {
         };
     }, [applyServerDiagram, buildPayload, createDiagram, draftDirty, fetchDiagrams, hasApiKey, mermaidText, selectedId, setStatusMessage, updateDiagram]);
 
-    const layoutClass = isRecentOpen
-        ? "grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[200px_minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]"
-        : "grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]";
+    const layoutClass = isRecentOpen ? "grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[200px_minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]" : "grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]";
 
     const handleApiKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
         setApiKey(event.target.value);
@@ -336,7 +334,11 @@ export default function App() {
         <div className="min-h-screen text-slate-100 bg-surface">
             <div className="flex h-screen flex-col px-5 pb-6 pt-6 lg:px-10">
                 <div className={`grid flex-1 min-h-0 gap-4 ${layoutClass}`}>
-                    {isRecentOpen && <div className="hidden lg:block min-h-0"><RecentBar diagrams={diagrams} selectedId={selectedId} onSelect={loadDiagram} /></div>}
+                    {isRecentOpen && (
+                        <div className="hidden lg:block min-h-0">
+                            <RecentBar diagrams={diagrams} selectedId={selectedId} onSelect={loadDiagram} />
+                        </div>
+                    )}
 
                     <EditorPanel
                         apiKey={apiKey}
@@ -363,12 +365,16 @@ export default function App() {
             </div>
 
             {isRecentOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 lg:hidden" onClick={() => setIsRecentOpen(false)}>
-                    <div className="flex flex-col w-full max-w-md max-h-[80vh] rounded-xl border border-border bg-surface/90 shadow-2xl" onClick={e => e.stopPropagation()}>
+                {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop click-to-close */}
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 lg:hidden" onClick={() => setIsRecentOpen(false)} onKeyDown={(e) => e.key === 'Escape' && setIsRecentOpen(false)} role="presentation">
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper */}
+                    <div className="flex flex-col w-full max-w-md max-h-[80vh] rounded-xl border border-border bg-surface/90 shadow-2xl" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Recent diagrams">
                         <div className="flex items-center justify-between border-b border-border px-4 py-3 shrink-0">
                             <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">Recent</h2>
                             <span className="text-xs text-muted">{diagrams.length}</span>
-                            <button type="button" onClick={() => setIsRecentOpen(false)} className="ml-auto pl-4 text-muted hover:text-slate-100 text-sm">✕</button>
+                            <button type="button" onClick={() => setIsRecentOpen(false)} className="ml-auto pl-4 text-muted hover:text-slate-100 text-sm">
+                                ✕
+                            </button>
                         </div>
                         <div className="flex-1 min-h-0 overflow-auto p-3 space-y-2">
                             {diagrams.length === 0 ? (
