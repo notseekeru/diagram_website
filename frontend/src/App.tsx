@@ -365,8 +365,26 @@ export default function App() {
             </div>
 
             {isRecentOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 lg:hidden" onClick={() => setIsRecentOpen(false)} onKeyDown={(e) => { if (e.key === 'Escape') setIsRecentOpen(false); }} role="presentation">
-                    <div className="flex flex-col w-full max-w-md max-h-[80vh] rounded-xl border border-border bg-surface/90 shadow-2xl" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { e.stopPropagation(); }} role="dialog" aria-modal="true" aria-label="Recent diagrams">
+                // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click-to-close
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 lg:hidden"
+                    onClick={() => setIsRecentOpen(false)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Escape") setIsRecentOpen(false);
+                    }}
+                    role="presentation"
+                >
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper */}
+                    <div
+                        className="flex flex-col w-full max-w-md max-h-[80vh] rounded-xl border border-border bg-surface/90 shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                            e.stopPropagation();
+                        }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Recent diagrams"
+                    >
                         <div className="flex items-center justify-between border-b border-border px-4 py-3 shrink-0">
                             <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">Recent</h2>
                             <span className="text-xs text-muted">{diagrams.length}</span>
