@@ -5,12 +5,10 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { pool } from "./db.js";
 
-// --- Config ------------------------------------------------------------------
 const PORT = Number(process.env.PORT ?? 5050);
 const API_KEY = process.env.API_KEY ?? "";
 if (!API_KEY) throw new Error("API_KEY is required");
 
-// --- Types -------------------------------------------------------------------
 type DiagramRow = {
     id: string;
     title: string;
@@ -19,7 +17,6 @@ type DiagramRow = {
     updated_at: string;
 };
 
-// --- Helpers -----------------------------------------------------------------
 const validUuid = (v: unknown): v is string => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v);
 
 const validMermaid = (v: unknown): v is string => {
@@ -38,13 +35,11 @@ const logErr = (error: unknown) =>
 
 const sErr = (res: Response, status: number, msg: string) => res.status(status).json({ error: msg });
 
-// --- App ---------------------------------------------------------------------
 const app = express();
 
 app.set("trust proxy", 2);
 app.disable("x-powered-by");
 
-// --- Middleware ---------------------------------------------------------------
 app.use(
     cors({
         origin: ["http://localhost:5223", "http://127.0.0.1:5223", "https://diagram.seekeru.tech"],
@@ -61,7 +56,6 @@ if (process.env.NODE_ENV !== "chaos") app.use(rateLimit({ windowMs: 60000, limit
 
 app.get("/healthz", (_req: Request, res: Response) => res.json({ status: "ok" }));
 
-// --- Routes ------------------------------------------------------------------
 const api = Router();
 
 api.post("/save-diagram", async (req: Request, res: Response) => {
@@ -144,7 +138,6 @@ app.use("/api", (req: Request, res: Response, next: NextFunction) => {
 });
 app.use("/api", api);
 
-// --- Startup -----------------------------------------------------------------
 const server = app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
 
 const shutdown = async () => {
