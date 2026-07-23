@@ -2,7 +2,6 @@ import crypto from "node:crypto";
 import cors from "cors";
 import express, { type NextFunction, type Request, type Response, Router } from "express";
 import rateLimit from "express-rate-limit";
-import helmet from "helmet";
 import { pool } from "./db.js";
 
 const PORT = Number(process.env.PORT ?? 3100);
@@ -49,7 +48,10 @@ app.use(
     }),
 );
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use((_req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    next();
+});
 app.use(express.json({ limit: "512kb" }));
 
 if (process.env.NODE_ENV !== "chaos") app.use(rateLimit({ windowMs: 60000, limit: 120 }));
