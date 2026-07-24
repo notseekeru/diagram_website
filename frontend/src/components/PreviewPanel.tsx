@@ -137,51 +137,46 @@ function InteractiveMermaid({ chart }: { chart: string }) {
         </div>
     );
 
-    return (
-        <>
-            {/* inline viewer */}
-            <div className="relative flex-1 min-h-0 w-full rounded-lg border border-zinc-800 bg-zinc-900/50 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px] overflow-hidden">
-                <TransformWrapper
-                    ref={transformRef}
-                    initialScale={1}
-                    minScale={0.05}
-                    maxScale={5}
-                    centerOnInit={true}
-                    wheel={{ step: 0.004 }}
-                    pinch={{ step: 3 }}
-                    panning={{ velocityDisabled: true }}
-                    zoomAnimation={{ animationTime: 150 }}
-                >
-                    <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%" }}>
-                        {viewer}
-                    </TransformComponent>
-                </TransformWrapper>
-                <PanControls transformRef={transformRef} />
-                <button type="button" onClick={toggleFullscreen} className="absolute top-4 right-4 z-10 rounded bg-zinc-800/80 p-2 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" aria-label="Enter fullscreen">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                    </svg>
-                </button>
-            </div>
+    const fsIconPath = isFullscreen
+        ? "M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"
+        : "M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3";
 
-            {/* fullscreen overlay — portaled to body to escape ancestor transforms */}
-            {isFullscreen &&
-                createPortal(
-                    <div className="fixed inset-0 z-[100] bg-zinc-950 overflow-hidden bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]">
-                        <TransformWrapper initialScale={1} minScale={0.05} maxScale={5} centerOnInit={true} limitToBounds={false} wheel={{ step: 0.004 }} pinch={{ step: 3 }} panning={{ velocityDisabled: true }} zoomAnimation={{ animationTime: 150 }}>
-                            <TransformComponent wrapperStyle={{ width: "100vw", height: "100vh" }} contentStyle={{ width: "100vw", height: "100vh" }}>
-                                {viewer}
-                            </TransformComponent>
-                        </TransformWrapper>
-                        <button type="button" onClick={toggleFullscreen} className="absolute top-4 right-4 z-50 rounded bg-zinc-800/80 p-2 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" aria-label="Exit fullscreen">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
-                            </svg>
-                        </button>
-                    </div>,
-                    document.body,
-                )}
-        </>
+    const diagramView = (
+        <TransformWrapper
+            ref={transformRef}
+            initialScale={1}
+            minScale={0.05}
+            maxScale={5}
+            centerOnInit={true}
+            wheel={{ step: 0.004 }}
+            pinch={{ step: 3 }}
+            panning={{ velocityDisabled: true }}
+            zoomAnimation={{ animationTime: 150 }}
+        >
+            <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%" }}>
+                {viewer}
+            </TransformComponent>
+        </TransformWrapper>
+    );
+
+    // Always keep TransformWrapper mounted in the same spot so zoom/pan state persists.
+    // When fullscreen, portal the outer shell to body.
+    // Single shell — identical styling in both modes. Fullscreen just portals & resizes.
+    const shell = (
+        <div className="relative flex-1 min-h-0 w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/50 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]">
+            {diagramView}
+            <PanControls transformRef={transformRef} />
+            <button type="button" onClick={toggleFullscreen} className="absolute top-4 right-4 z-10 rounded bg-zinc-800/80 p-2 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={fsIconPath} /></svg>
+            </button>
+        </div>
+    );
+
+    if (!isFullscreen) return shell;
+
+    return createPortal(
+        <div className="fixed inset-0 z-[100] flex flex-col">{shell}</div>,
+        document.body,
     );
 }
 
