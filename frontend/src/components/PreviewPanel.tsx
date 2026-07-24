@@ -80,11 +80,14 @@ function PanControls({ transformRef }: { transformRef: React.RefObject<ReactZoom
 
 function InteractiveMermaid({ chart }: { chart: string }) {
     const [svgContent, setSvgContent] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
 
     useEffect(() => {
         let isMounted = true;
+        setError(null);
+        setSvgContent("");
 
         mermaid.initialize({
             startOnLoad: false,
@@ -103,6 +106,15 @@ function InteractiveMermaid({ chart }: { chart: string }) {
                     setSvgContent(svg);
                 }
             } catch (err) {
+                if (isMounted) {
+                    const message = err instanceof Error ? err.message : String(err);
+                    // Strip redundant mermaid boilerplate, keep just the relevant part
+                    const cleaned = message
+                        .replace(/^Syntax error in text\s*/i, "")
+                        .replace(/\s*mermaid version [\d.]+/gi, "")
+                        .trim();
+                    setError(cleaned || message);
+                }
                 console.error("Mermaid rendering error:", err);
             }
         };
@@ -147,7 +159,17 @@ function InteractiveMermaid({ chart }: { chart: string }) {
 
     const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
-    const viewer = (
+    const viewer = error ? (
+        <div className="flex flex-col items-center justify-center w-full h-full p-8">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-rose-400 mb-3 shrink-0">
+                <title>Syntax error</title>
+                <circle cx="12" cy="12" r="10" />
+                <path d="m15 9-6 6M9 9l6 6" />
+            </svg>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-400 mb-2">Syntax Error</p>
+            <pre className="text-xs text-rose-300/70 text-center max-w-md leading-relaxed whitespace-pre-wrap break-words font-mono">{error}</pre>
+        </div>
+    ) : (
         <div className="relative flex items-center justify-center w-full h-full [&>svg]:max-w-none [&>svg]:w-full [&>svg]:h-full">
             {/* biome-ignore lint/security/noDangerouslySetInnerHtml: mermaid renders raw SVG */}
             <div className="w-full h-full flex items-center justify-center" dangerouslySetInnerHTML={{ __html: svgContent }} role="img" aria-label="Diagram preview" />
