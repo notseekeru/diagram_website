@@ -24,45 +24,39 @@ function PanControls({ transformRef }: { transformRef: React.RefObject<ReactZoom
         "flex items-center justify-center w-7 h-7 rounded-md bg-zinc-900/80 border border-zinc-700/60 text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-zinc-500 transition-colors focus:outline-none focus:ring-1 focus:ring-zinc-500 select-none";
 
     return (
-        <div className="absolute bottom-3 right-3 z-20 flex items-end gap-2">
-            {/* zoom stack + reset */}
-            <div className="flex flex-col gap-0.5">
-                <button type="button" className={btn} onClick={() => transformRef.current?.zoomIn(0.5, 200)} aria-label="Zoom in" tabIndex={-1}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Zoom in</title><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35M11 8v6M8 11h6" /></svg>
-                </button>
-                <button type="button" className={btn} onClick={() => transformRef.current?.zoomOut(0.5, 200)} aria-label="Zoom out" tabIndex={-1}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Zoom out</title><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35M8 11h6" /></svg>
-                </button>
-                <button
-                    type="button"
-                    className={`${btn} bg-zinc-900/90`}
-                    onClick={() => transformRef.current?.centerView(1, 200)}
-                    aria-label="Reset view"
-                    tabIndex={-1}
-                >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Reset view</title><circle cx="12" cy="12" r="3" /><path d="M12 2v4m0 12v4m10-10h-4M6 12H2" /></svg>
-                </button>
-            </div>
-            {/* d-pad */}
-            <div className="grid grid-cols-3 gap-0.5">
-                <div />
-                <button type="button" className={btn} onClick={() => pan(0, PAN_STEP)} aria-label="Pan up" tabIndex={-1}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Pan up</title><path d="m18 15-6-6-6 6" /></svg>
-                </button>
-                <div />
-                <button type="button" className={btn} onClick={() => pan(PAN_STEP, 0)} aria-label="Pan left" tabIndex={-1}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Pan left</title><path d="m15 18-6-6 6-6" /></svg>
-                </button>
-                <div />
-                <button type="button" className={btn} onClick={() => pan(-PAN_STEP, 0)} aria-label="Pan right" tabIndex={-1}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Pan right</title><path d="m9 18 6-6-6-6" /></svg>
-                </button>
-                <div />
-                <button type="button" className={btn} onClick={() => pan(0, -PAN_STEP)} aria-label="Pan down" tabIndex={-1}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Pan down</title><path d="m6 9 6 6 6-6" /></svg>
-                </button>
-                <div />
-            </div>
+        <div className="absolute bottom-3 right-3 z-20 grid grid-cols-3 gap-0.5">
+            {/* row 1: zoom in | up | zoom out */}
+            <button type="button" className={btn} onClick={() => transformRef.current?.zoomIn(0.5, 200)} aria-label="Zoom in" tabIndex={-1}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Zoom in</title><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35M11 8v6M8 11h6" /></svg>
+            </button>
+            <button type="button" className={btn} onClick={() => pan(0, PAN_STEP)} aria-label="Pan up" tabIndex={-1}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Pan up</title><path d="m18 15-6-6-6 6" /></svg>
+            </button>
+            <button type="button" className={btn} onClick={() => transformRef.current?.zoomOut(0.5, 200)} aria-label="Zoom out" tabIndex={-1}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Zoom out</title><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35M8 11h6" /></svg>
+            </button>
+            {/* row 2: left | reset | right */}
+            <button type="button" className={btn} onClick={() => pan(PAN_STEP, 0)} aria-label="Pan left" tabIndex={-1}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Pan left</title><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+            <button
+                type="button"
+                className={`${btn} bg-zinc-900/90`}
+                onClick={() => transformRef.current?.centerView(1, 200)}
+                aria-label="Reset view"
+                tabIndex={-1}
+            >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Reset view</title><circle cx="12" cy="12" r="3" /><path d="M12 2v4m0 12v4m10-10h-4M6 12H2" /></svg>
+            </button>
+            <button type="button" className={btn} onClick={() => pan(-PAN_STEP, 0)} aria-label="Pan right" tabIndex={-1}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Pan right</title><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+            {/* row 3: spacer | down | spacer */}
+            <div />
+            <button type="button" className={btn} onClick={() => pan(0, -PAN_STEP)} aria-label="Pan down" tabIndex={-1}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><title>Pan down</title><path d="m6 9 6 6 6-6" /></svg>
+            </button>
+            <div />
         </div>
     );
 }
