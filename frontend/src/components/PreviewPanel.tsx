@@ -147,6 +147,10 @@ function InteractiveMermaid({ chart }: { chart: string }) {
         if (!ctx) return;
 
         const onKeyDown = (e: KeyboardEvent) => {
+            // Don't steal arrow keys when user is typing in an input/textarea
+            const target = e.target as HTMLElement;
+            if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
+
             const { positionX, positionY, scale } = ctx.state;
             const step = PAN_STEP;
             switch (e.key) {
