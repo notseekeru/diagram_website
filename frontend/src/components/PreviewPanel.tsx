@@ -175,7 +175,7 @@ function InteractiveMermaid({ chart }: { chart: string }) {
     if (!isFullscreen) return shell;
 
     return createPortal(
-        <div className="fixed inset-0 z-[100] flex flex-col">{shell}</div>,
+        <div className="fixed inset-0 z-[100] flex flex-col" style={{ backgroundColor: "#0a0a0a" }}>{shell}</div>,
         document.body,
     );
 }
