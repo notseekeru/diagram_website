@@ -83,39 +83,51 @@ function InteractiveMermaid({ chart }: { chart: string }) {
     const [error, setError] = useState<string | null>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+    const initialized = useRef(false);
 
     useEffect(() => {
+        if (!initialized.current) {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: "dark",
+                flowchart: { useMaxWidth: false, htmlLabels: true },
+            });
+            initialized.current = true;
+        }
+
         let isMounted = true;
         setError(null);
         setSvgContent("");
 
-        mermaid.initialize({
-            startOnLoad: false,
-            theme: "dark",
-            flowchart: {
-                useMaxWidth: false,
-                htmlLabels: true,
-            },
-        });
-
+        const renderId = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
         const renderDiagram = async () => {
             try {
-                const renderId = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
                 const { svg } = await mermaid.render(renderId, chart);
-                if (isMounted) {
-                    setSvgContent(svg);
+                if (!isMounted) return;
+
+                // Mermaid returns an error SVG (with "Syntax error in text") instead
+                // of throwing for some syntax issues. Check the raw string.
+                if (/Syntax error in text/i.test(svg)) {
+                    const match = svg.match(/<text[^>]*class="error-text"[^>]*>([\s\S]*?)<\/text>/i);
+                    const raw = match ? match[1].replace(/<[^>]+>/g, "").trim() : "";
+                    const lines = raw
+                        .split("\n")
+                        .map((l) => l.trim())
+                        .filter((l) => l && !/^mermaid version/i.test(l) && l !== "Syntax error in text");
+                    setError(lines.length > 0 ? lines.join(" ") : "Invalid mermaid syntax");
+                    return;
                 }
+
+                setSvgContent(svg);
             } catch (err) {
                 if (isMounted) {
                     const message = err instanceof Error ? err.message : String(err);
-                    // Strip redundant mermaid boilerplate, keep just the relevant part
                     const cleaned = message
                         .replace(/^Syntax error in text\s*/i, "")
                         .replace(/\s*mermaid version [\d.]+/gi, "")
                         .trim();
-                    setError(cleaned || message);
+                    setError(cleaned || "Invalid mermaid syntax");
                 }
-                console.error("Mermaid rendering error:", err);
             }
         };
 
@@ -123,6 +135,10 @@ function InteractiveMermaid({ chart }: { chart: string }) {
 
         return () => {
             isMounted = false;
+            // mermaid.render() may leave a stray wrapper div in <body>.
+            // Clean it up so it doesn't accumulate.
+            const stray = document.getElementById(`d${renderId}`);
+            if (stray) stray.remove();
         };
     }, [chart]);
 
