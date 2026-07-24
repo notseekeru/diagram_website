@@ -149,6 +149,8 @@ function InteractiveMermaid({ chart }: { chart: string }) {
                     centerOnInit={true}
                     wheel={{ step: 0.004 }}
                     pinch={{ step: 3 }}
+                    panning={{ velocityDisabled: true }}
+                    zoomAnimation={{ animationTime: 150 }}
                 >
                     <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%" }}>
                         {viewer}
@@ -166,7 +168,7 @@ function InteractiveMermaid({ chart }: { chart: string }) {
             {isFullscreen &&
                 createPortal(
                     <div className="fixed inset-0 z-[100] bg-zinc-950 overflow-hidden bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]">
-                        <TransformWrapper initialScale={1} minScale={0.05} maxScale={5} centerOnInit={true} limitToBounds={false} wheel={{ step: 0.004 }} pinch={{ step: 3 }}>
+                        <TransformWrapper initialScale={1} minScale={0.05} maxScale={5} centerOnInit={true} limitToBounds={false} wheel={{ step: 0.004 }} pinch={{ step: 3 }} panning={{ velocityDisabled: true }} zoomAnimation={{ animationTime: 150 }}>
                             <TransformComponent wrapperStyle={{ width: "100vw", height: "100vh" }} contentStyle={{ width: "100vw", height: "100vh" }}>
                                 {viewer}
                             </TransformComponent>
