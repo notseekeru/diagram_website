@@ -374,7 +374,6 @@ export default function App() {
                     }}
                     role="presentation"
                 >
-                    {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper */}
                     <div
                         className="flex flex-col w-full max-w-md max-h-[80vh] rounded-xl border border-border bg-surface/90 shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
