@@ -360,7 +360,7 @@ export default function App() {
                         status={status}
                     />
 
-                    <PreviewPanel id="editor-preview" chart={mermaidText} label="" title="" description="" />
+                    <PreviewPanel id="editor-preview" chart={mermaidText} />
                 </div>
             </div>
 
