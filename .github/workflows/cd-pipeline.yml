@@ -31,7 +31,7 @@ jobs:
             context: ./backend
             dockerfile: ./backend/Dockerfile
             image_suffix: diagram_backend
-            port: 5050
+            port: 3100
             health_endpoint: /healthz
     steps:
       - name: Checkout
