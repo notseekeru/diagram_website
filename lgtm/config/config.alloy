@@ -1,4 +1,4 @@
-/* 
+/*
 Live debugging, turn off if production(resource intensive), and note to change in the compose file alloy
 livedebugging {
   enabled = true
@@ -135,15 +135,6 @@ prometheus.scrape "scrape_node_stats" {
   scrape_interval = "60s"
 
 }
-
-prometheus.exporter.self "alloy_stats" {
-}
-
-prometheus.scrape "scrape_alloy" {
-  targets    = prometheus.exporter.self.alloy_stats.targets
-  forward_to = [prometheus.relabel.standardize_metrics.receiver]
-}
-
 prometheus.relabel "standardize_metrics" {
   forward_to = [prometheus.remote_write.local_prometheus.receiver]
 
@@ -168,4 +159,3 @@ prometheus.remote_write "local_prometheus" {
     url = "http://prometheus:9090/api/v1/write"
   }
 }
-
