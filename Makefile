@@ -21,6 +21,7 @@ buildcache:
 	$(DEV_CMD) build --no-cache
 down:
 	$(DEV_CMD) down
+	docker network remove obs-network || true
 
 PORTS = 3100 5273 5432
 
@@ -28,6 +29,7 @@ check-ports:
 	@scripts/port-claimer.sh --self $(DEV_PROJECT) $(PORTS)
 
 up: check-ports
+	docker network create obs-network || true
 	$(DEV_CMD) up -d
 logs:
 	$(DEV_CMD) logs -f
@@ -44,7 +46,7 @@ prod-up:
 prod-logs:
 	$(PROD_CMD) logs -f
 prod-down:
-	$(PROD_CMD) down -v --rmi local
+	$(PROD_CMD) down -v
 
 prod-migrate-up:
 	@if [ -z "$(DB_URL)" ]; then \
@@ -61,7 +63,7 @@ lgtm-logs:
 lgtm-up:
 	cd lgtm && docker compose up -d
 lgtm-down:
-	cd lgtm && docker compose down -v --rmi local
+	cd lgtm && docker compose down -v
 
 # Chaos
 chaos-sh:
