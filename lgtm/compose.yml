@@ -5,7 +5,7 @@ services:
     container_name: loki
     shm_size: "512m"
     ports:
-      - "3100:3100"
+      - "3101:3100"
     command:
       - -config.file=/etc/loki/loki.yml
     volumes:
@@ -20,7 +20,7 @@ services:
     image: grafana/grafana:13.0.1
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - HOSTNAME=${HOSTNAME}
@@ -130,4 +130,3 @@ services:
 networks:
   obs-network:
     external: true
-
