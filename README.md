@@ -1,6 +1,7 @@
 # Diagram Website
 
 [![CI](https://github.com/notseekeru/diagram_website/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/notseekeru/diagram_website/actions)
+[![CD](https://github.com/notseekeru/diagram_website/actions/workflows/cd-pipeline.yml/badge.svg)](https://github.com/notseekeru/diagram_website/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and full OpenTelemetry observability stack.
@@ -9,8 +10,8 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 
 | Layer             | Stack                                                                |
 | ----------------- | -------------------------------------------------------------------- |
-| **Frontend**      | React 19, Mermaid.js 11, Axios, Tailwind, Vite 8, TypeScript 6       |
-| **Backend**       | Express 5, pg (PostgreSQL), helmet, cors, express-rate-limit         |
+| **Frontend**      | React 19, Mermaid.js 11, Axios, Tailwind, Vite 8, TypeScript 7       |
+| **Backend**       | Express 5, pg (PostgreSQL), cors, express-rate-limit                 |
 | **Database**      | PostgreSQL 16 (containerized)                                        |
 | **Infra**         | Docker Compose (dev + prod), nginx (prod)                            |
 | **Observability** | OpenTelemetry, Grafana, Prometheus, Loki, Tempo, Alloy, Alertmanager |
@@ -37,7 +38,8 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 │   ├── chaos_test.sh
 │   ├── chaos_test.py
 │   ├── locust.py
-│   └── api-pentest.sh
+│   ├── api-pentest.sh
+│   └── port-claimer.sh
 ├── Makefile            Dev/prod/chaos/lgtm targets
 └── docs/              Auth, chaos, SLO, pentest, traffic docs
     ├── api-auth.md
@@ -56,7 +58,7 @@ cp frontend/.env.example frontend/.env
 cp lgtm/.env.example lgtm/.env    # if using observability
 
 # 2. Start dev stack
-make dev-up
+make up
 
 # 3. Open http://localhost:5273
 
