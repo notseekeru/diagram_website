@@ -26,7 +26,7 @@
         "cors": "2.8.6",
         "express": "5.2.1",
         "express-rate-limit": "8.5.2",
-        "node-pg-migrate": "8.0.4",
+        "node-pg-migrate": "9.0.0",
         "pg": "8.22.0"
     },
     "devDependencies": {
