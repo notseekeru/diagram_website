@@ -76,6 +76,6 @@ LOCUST_IMG ?= locustio/locust:latest
 LOCUST = docker run --rm -u "$$(id -u):$$(id -g)" -v "$(CURDIR):/app" -w /app --network=host $(LOCUST_IMG)
 
 locust:
-	$(LOCUST) -f /app/scripts/locust.py --host=http://localhost:3100
+	$(LOCUST) -f /app/scripts/locust.py --host=http://localhost:3500
 locust-csv:
-	$(LOCUST) -f /app/scripts/locust.py --host=http://localhost:3100 --headless -u 100 -r 10 -t 5m --csv=/app/results
+	$(LOCUST) -f /app/scripts/locust.py --host=http://localhost:3500 --headless -u 100 -r 10 -t 5m --csv=/app/results
