@@ -69,11 +69,11 @@ lgtm-down:
 chaos-sh:
 	cd scripts && API_KEY="zxczxc" ./chaos_test.sh
 chaos-py:
-	cd scripts && API_KEY="zxczxc" python chaos_test.py
+	cd scripts && API_KEY="zxczxc" python3 chaos_test.py
 
 LOCUST_IMG ?= locustio/locust:latest
 BACKEND_URL ?= http://diagram_backend_dev:3100
-LOCUST = docker run --rm -u "$$(id -u):$$(id -g)" -v "$(CURDIR):/app" -w /app --network=obs-network $(LOCUST_IMG)
+LOCUST = docker run --rm -u "$$(id -u):$$(id -g)" -v "$(CURDIR):/app" -w /app --network=obs-network -p 8089:8089 $(LOCUST_IMG)
 
 locust:
 	$(LOCUST) -f /app/scripts/locust.py --host=$(BACKEND_URL)
