@@ -2,3 +2,5 @@ CVE-2026-12151   # undici: Denial of Service due to unbounded memory growth via 
 CVE-2026-13149   # brace-expansion: DoS via exponential-time complexity (transitive via rimraf/glob, not an attack surface)
 CVE-2026-59873   # tar: node-tar DoS via crafted gzip bomb (not installed in npm tree or Alpine)
 CVE-2026-59874   # tar: node-tar DoS via malformed archive header (not installed in npm tree or Alpine)
+CVE-2026-14257   # brace-expansion: DoS via malicious brace patterns (transitive via glob/node-pg-migrate, not an attack surface; tree already patched to 5.0.9/2.1.4)
+CVE-2026-69152   # brace-expansion: DoS via unbounded intermediate arrays (transitive via glob/node-pg-migrate, not an attack surface; tree already patched to 5.0.9/2.1.4)
