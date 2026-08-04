@@ -1,25 +1,36 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 from locust import HttpUser, task, between
 
 # 1. Look up one folder from 'scripts/' to reach the root, then go into 'backend'
 env_path = Path(__file__).resolve().parent / "../backend/.env"
 
-# 2. Load the environment variables from that specific file
-load_dotenv(dotenv_path=env_path)
+# 2. Read API_KEY from backend/.env without external deps (locust image has no dotenv)
+def load_api_key(path: Path) -> str:
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return os.getenv("API_KEY", "")
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        if key.strip() == "API_KEY":
+            return value.strip().strip('"').strip("'")
+    return os.getenv("API_KEY", "")
 
 class DiagramApiUser(HttpUser):
     # Simulates users waiting 1 to 3 seconds between actions
     wait_time = between(1, 3)
-    
+
     def on_start(self):
-        # 3. Read the API_KEY variable from the environment
-        self.api_key = os.getenv("API_KEY") 
-        
+        # 3. Read the API_KEY variable from backend/.env (or environment)
+        self.api_key = load_api_key(env_path)
+
         if not self.api_key:
             raise ValueError(f"API_KEY not found! Checked path: {env_path.resolve().as_posix()}")
-        
+
         # Global headers for all normal user tasks
         self.client.headers.update({
             "X-API-Key": self.api_key,
@@ -38,16 +49,16 @@ class DiagramApiUser(HttpUser):
             "title": "Locust Load Test",
             "mermaidText": "flowchart TD\nStart --> Process --> End"
         }
-        
+
         with self.client.post("/api/save-diagram", json=payload, name="/api/save-diagram", catch_response=True) as response:
             if response.status_code not in (200, 201):
                 # Merged: Print error details to WSL terminal for troubleshooting
                 print(f"Failed to create diagram: {response.status_code} - {response.text}")
                 return
-            
+
             try:
                 diagram_data = response.json()
-                diagram_id = diagram_data.get("id") 
+                diagram_id = diagram_data.get("id")
             except Exception as e:
                 print(f"Failed to parse JSON response: {e}")
                 return
@@ -70,7 +81,7 @@ class DiagramApiUser(HttpUser):
     def test_unauthorized_access(self):
         """Merged: Tests backend security by sending an invalid key."""
         custom_headers = {"X-API-Key": "INVALID_WRONG_KEY"}
-        
+
         with self.client.get("/api/diagrams", headers=custom_headers, catch_response=True) as response:
             if response.status_code == 401:
                 # Tells Locust this is a success so your dashboard statistics stay green
