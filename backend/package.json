@@ -24,12 +24,10 @@
         "@opentelemetry/sdk-node": "0.220.0",
         "@opentelemetry/semantic-conventions": "1.43.0",
         "cors": "2.8.6",
-        "dotenv": "17.4.2",
         "express": "5.2.1",
         "express-rate-limit": "8.5.2",
         "node-pg-migrate": "8.0.4",
-        "pg": "8.22.0",
-        "picomatch": "4.0.5"
+        "pg": "8.22.0"
     },
     "devDependencies": {
         "@biomejs/biome": "2.4.16",
