@@ -71,11 +71,11 @@ chaos-sh:
 chaos-py:
 	cd scripts && API_KEY="zxczxc" python chaos_test.py
 
-# locust via official image (host has neither nix nor pip)
 LOCUST_IMG ?= locustio/locust:latest
-LOCUST = docker run --rm -u "$$(id -u):$$(id -g)" -v "$(CURDIR):/app" -w /app --network=host $(LOCUST_IMG)
+BACKEND_URL ?= http://diagram_backend_dev:3100
+LOCUST = docker run --rm -u "$$(id -u):$$(id -g)" -v "$(CURDIR):/app" -w /app --network=obs-network $(LOCUST_IMG)
 
 locust:
-	$(LOCUST) -f /app/scripts/locust.py --host=http://localhost:3500
+	$(LOCUST) -f /app/scripts/locust.py --host=$(BACKEND_URL)
 locust-csv:
-	$(LOCUST) -f /app/scripts/locust.py --host=http://localhost:3500 --headless -u 100 -r 10 -t 5m --csv=/app/results
+	$(LOCUST) -f /app/scripts/locust.py --host=$(BACKEND_URL) --headless -u 100 -r 10 -t 5m --csv=/app/results
