@@ -107,6 +107,64 @@ The `.env.example` files ship with sane defaults — for local dev the only requ
 | `HOSTNAME` | `seeker` | Host identity for labels |
 | `ALERTMANAGER_SLACK_WEBHOOK` | *(empty)* | Slack alert notifications |
 
+## Prerequisites
+
+- **Docker** with **Compose v2** (`docker compose` — the v1 `docker-compose` binary will not work)
+- **GNU Make** (`make`)
+- Optional: **Node.js 24** (pinned in CI) if you want to run lint/typecheck outside the containers
+- Optional: **direnv** — the root `.envrc` runs `git pull` on shell entry
+
+> **Note:** `make up` requires ports **3100** (backend), **5273** (frontend), and **5432** (Postgres) to be free. It runs `scripts/port-claimer.sh` first and will fail if any are taken. If you already run Postgres locally on 5432, stop it or the dev stack won't start.
+
+## Contributing
+
+### Development loop
+
+```bash
+make up          # start the dev stack (frontend + backend + postgres)
+# open http://localhost:5273
+```
+
+Both services run with hot reload:
+- **Frontend** — Vite dev server on `:5273`; edit `frontend/src/**` and it reloads.
+- **Backend** — `tsx watch` on `:3100`; edit `backend/src/**` and it restarts.
+
+### Working with the database
+
+Schema is managed with **`node-pg-migrate`**. Migrations run automatically on backend startup. For schema changes:
+
+```bash
+# create a new migration (from inside the backend container)
+docker exec -t diagram_backend_dev npm run migrate:create --name my_change
+# apply / roll back manually when needed
+docker exec -t diagram_backend_dev npm run migrate:up
+docker exec -t diagram_backend_dev npm run migrate:down
+```
+
+Migrations live in `backend/migrations/` (see `001_create_diagrams.js`). The pool config (timeouts, sizing) is in `backend/src/db.ts`.
+
+### Verifying changes (there are no automated tests)
+
+> **Important:** this repo currently has **no automated test suite** — neither `frontend/package.json` nor `backend/package.json` defines a `test` script. Verification is manual.
+
+```bash
+make exec   # full self-check on both services: lint + typecheck + npm audit + prune
+```
+
+This runs `biome` lint, `tsc` typecheck, and `npm audit` for both apps. Beyond that, verify behavior manually against the API (see [docs/api-auth.md](docs/api-auth.md)) and the UI at `http://localhost:5273`.
+
+### Code style
+
+- **Formatter + linter:** Biome (`npm run lint` in each service). Run `make lint` before committing.
+- **Types:** `tsc` is strict; `make exec` enforces it.
+- **Commits:** follow Conventional Commits, e.g. `fix(backend): ...`, `feat(frontend): ...`. Keep the subject under 60 chars.
+
+### Before you open a PR
+
+1. `make exec` passes (lint + typecheck + audit) on both services.
+2. CI mirrors this (see `.github/workflows/ci-pipeline.yml`), runs on PRs to `main`, and also runs a Trivy filesystem scan.
+3. If your change touches the API, update [docs/api-auth.md](docs/api-auth.md) or [docs/api-pentest.md](docs/api-pentest.md) as appropriate.
+
 ## API
 
 All endpoints require `X-API-Key` header. See [docs/api-auth.md](docs/api-auth.md).
