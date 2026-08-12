@@ -6,6 +6,16 @@
 
 Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and full OpenTelemetry observability stack.
 
+**Live:** https://diagram.seekeru.tech
+
+## Features
+
+- **Mermaid.js diagram editor** with live preview and ELK layout engine (`@mermaid-js/layout-elk`)
+- **Autosave** to PostgreSQL with a recent-diagrams bar (`RecentBar`)
+- **REST API** with API-key auth, UUID validation, and rate limiting
+- **Full observability** — traces, logs, metrics, and alerting (Grafana / Loki / Tempo / Prometheus / Alloy / Alertmanager)
+- **Chaos & security tooling** — fault injection, load testing (Locust), API pentest script
+
 ## Stack
 
 | Layer             | Stack                                                                |
@@ -66,7 +76,36 @@ make up
 > `docker exec -t diagram_backend_dev npm run migrate:up`
 ```
 
-Set `API_KEY` and `DATABASE_URL` in `backend/.env` and `VITE_BACKEND_URL=http://localhost:3100` in `frontend/.env` for local dev.
+The `.env.example` files ship with sane defaults — for local dev the only required change is a real `API_KEY` in `backend/.env`. The frontend uses `VITE_BACKEND_URL`; leave it empty for same-origin API calls (default in `.env.example`). See [Environment Variables](#environment-variables).
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+
+| Variable | Default | Purpose |
+| -------- | ------- | ------- |
+| `API_KEY` | *(required)* | Shared secret validated via `X-API-Key` header |
+| `DATABASE_URL` | `postgres://diagram:diagram@postgres:5432/diagramdb` | Postgres connection string |
+| `PORT` | `3100` | HTTP port |
+| `NODE_ENV` | `chaos` | `chaos` disables rate limiting (chaos tests) |
+| `TRUST_PROXY_HOPS` | `0` | Proxy hops for `trust proxy` |
+| `FRONTEND_ORIGINS` | `http://localhost:5273,https://diagram.seekeru.tech` | CORS origins |
+| `OTEL_*` | *see `.env.example`* | OpenTelemetry exporter config |
+
+### Frontend (`frontend/.env`)
+
+| Variable | Default | Purpose |
+| -------- | ------- | ------- |
+| `VITE_BACKEND_URL` | *(empty)* | API base URL; empty = same-origin (`/api`) |
+| `DEVELOPMENT_BACKEND_URL` | `http://diagram_backend_dev:3100` | Reserved for dev proxies (`docker exec` context) |
+
+### lgtm (`lgtm/.env`)
+
+| Variable | Default | Purpose |
+| -------- | ------- | ------- |
+| `GRAFANA_PASSWORD` | `grafana` | Grafana admin password |
+| `HOSTNAME` | `seeker` | Host identity for labels |
+| `ALERTMANAGER_SLACK_WEBHOOK` | *(empty)* | Slack alert notifications |
 
 ## API
 
@@ -96,6 +135,29 @@ make prod-migrate-up DB_URL='postgresql://user:pass@host:25060/db?sslmode=requir
 ```
 
 Set `VITE_BACKEND_URL=` (empty) in `frontend/.env` for same-origin API calls in prod. See the `.env.example` files for rationale.
+
+Deploying to a non-DigitalOcean host, or want the CI/CD pipeline? See `.github/workflows/` — CI runs lint/typecheck/audit, CD builds and ships the production images.
+
+## Development & Testing
+
+```bash
+make lint          # biome lint (frontend + backend)
+make exec          # full self-check: lint + typecheck + audit + prune
+make check-ports   # verify 3100/5273/5432 are free
+```
+
+Chaos / load / security tooling ships in `scripts/`:
+
+```bash
+make chaos-sh   # shell-based fault injection & robustness tests
+make chaos-py   # Python-based chaos tests
+make locust     # interactive Locust load test (UI on :8089)
+make locust-csv # headless 5-min load test → results.csv
+```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ## Troubleshooting
 
