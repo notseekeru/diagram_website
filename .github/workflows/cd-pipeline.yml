@@ -120,6 +120,14 @@ jobs:
           docker rm -f smoke-${{ matrix.service.name }}-${{ github.run_id }} || true
           docker rmi ${{ env.IMAGE }}:${{ github.sha }} || true
 
+      - name: Prune GHCR
+        if: always()
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ matrix.service.image_suffix }}
+          package-type: container
+          min-versions-to-keep: 5
+
   update-gitops-repo:
     runs-on: ubuntu-latest
     needs: build-and-push
