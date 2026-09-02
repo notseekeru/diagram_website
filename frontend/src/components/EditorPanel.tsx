@@ -1,4 +1,4 @@
-import { type ChangeEvent, useCallback } from "react";
+import { type ChangeEvent, type UIEvent, useCallback, useMemo, useRef } from "react";
 import { FiList, FiPlus, FiRefreshCw, FiSave, FiTrash2 } from "react-icons/fi";
 import type { StatusMessage, StatusTone } from "../types";
 
@@ -42,6 +42,22 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
         },
         [onMermaidChange],
     );
+
+    const gutterRef = useRef<HTMLPreElement | null>(null);
+
+    // Line numbers gutter must mirror the editable rows 1:1. The textarea line-count
+    // matches the number of "hard" rows only when lines don't soft-wrap, so the
+    // code box uses wrap="off": every source line is its own row and the textarea
+    const lineNumbers = useMemo(() => {
+        const count = Math.max(1, mermaidText.split("\n").length);
+        return Array.from({ length: count }, (_, i) => String(i + 1)).join("\n");
+    }, [mermaidText]);
+
+    const syncGutterScroll = useCallback((event: UIEvent<HTMLTextAreaElement>) => {
+        if (gutterRef.current) {
+            gutterRef.current.scrollTop = event.currentTarget.scrollTop;
+        }
+    }, []);
 
     const actionButtonBase = "inline-flex h-8 w-8 items-center justify-center rounded-lg border text-slate-100 transition focus:outline-none focus:ring-2 focus:ring-accent/30 disabled:cursor-not-allowed disabled:opacity-50";
     const actionButtonIdle = "border-border bg-surface/70 hover:border-accentSecondary/50";
@@ -109,12 +125,25 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
                 <div className="flex min-h-0 flex-1 flex-col">
                     <label className="flex flex-col flex-1 min-h-0 text-[11px] uppercase tracking-[0.2em] text-muted">
                         Mermaid source
-                        <textarea
-                            value={mermaidText}
-                            onChange={handleMermaidChange}
-                            className="mt-1.5 w-full flex-1 min-h-0 resize-none rounded-xl border border-border bg-surface/70 p-3 font-mono text-xs text-slate-100 outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/30"
-                            placeholder="Type your flowchart/sequence code here..."
-                        />
+                        <span className="mt-1.5 flex min-h-0 flex-1 overflow-hidden rounded-xl border border-border bg-surface/70 transition focus-within:border-accent/60 focus-within:ring-2 focus-within:ring-accent/30">
+                            <pre
+                                ref={gutterRef}
+                                aria-hidden="true"
+                                className="w-12 shrink-0 select-none overflow-hidden py-3 pr-2 text-right font-mono text-xs leading-6 text-muted"
+                            >
+                                {lineNumbers}
+                            </pre>
+                            <textarea
+                                value={mermaidText}
+                                onChange={handleMermaidChange}
+                                onScroll={syncGutterScroll}
+                                wrap="off"
+                                spellCheck={false}
+                                className="min-h-0 min-w-0 flex-1 resize-none overflow-auto bg-transparent p-3 pl-2 text-xs leading-6 font-mono text-slate-100 outline-none placeholder:text-muted"
+                                placeholder="Type your flowchart/sequence code here..."
+                                aria-label="Mermaid source"
+                            />
+                        </span>
                     </label>
                 </div>
             </div>
