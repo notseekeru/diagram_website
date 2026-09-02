@@ -3,6 +3,7 @@ import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } f
 import EditorPanel from "./components/EditorPanel";
 import PreviewPanel from "./components/PreviewPanel";
 import RecentBar from "./components/RecentBar";
+import ResizableSplit from "./components/ResizableSplit";
 import type { DiagramSummary, StatusMessage, StatusTone } from "./types";
 
 type ServerDiagram = {
@@ -15,7 +16,28 @@ type ServerDiagram = {
 
 const AUTO_SAVE_DELAY_MS = 2000;
 const DEFAULT_TITLE = "Untitled Diagram";
+const DEFAULT_SPLIT_RATIO = 0.5;
+const STORAGE_KEY_RATIO = "diagram_split_ratio";
+// Tailwind `lg` breakpoint: side-by-side from here up, stacked below.
+const LG_QUERY = "(min-width: 1024px)";
 
+const readStoredRatio = (): number => {
+    const stored = Number(localStorage.getItem(STORAGE_KEY_RATIO));
+    if (Number.isFinite(stored) && stored > 0.05 && stored < 0.95) return stored;
+    return DEFAULT_SPLIT_RATIO;
+};
+
+/** Returns whether the viewport is at/above the `lg` breakpoint (desktop). */
+function useIsDesktop() {
+    const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(LG_QUERY).matches);
+    useEffect(() => {
+        const media = window.matchMedia(LG_QUERY);
+        const onChange = () => setIsDesktop(media.matches);
+        media.addEventListener("change", onChange);
+        return () => media.removeEventListener("change", onChange);
+    }, []);
+    return isDesktop;
+}
 const defaultMermaid = `flowchart TB
   A[Visitor] --> B{Needs diagram?}
   B -- Yes --> C[Write Mermaid]
@@ -46,6 +68,10 @@ export default function App() {
     const [isBusy, setIsBusy] = useState(false);
     const [isRecentOpen, setIsRecentOpen] = useState(false);
     const [lastAutoSave, setLastAutoSave] = useState<string | null>(null);
+    const [splitRatio, setSplitRatio] = useState(readStoredRatio);
+
+    const isDesktop = useIsDesktop();
+    const splitOrientation: "row" | "column" = isDesktop ? "row" : "column";
 
     const autoSaveTimer = useRef<number | null>(null);
     const autoSaveInFlight = useRef(false);
@@ -320,7 +346,10 @@ export default function App() {
         };
     }, [applyServerDiagram, buildPayload, createDiagram, draftDirty, fetchDiagrams, hasApiKey, mermaidText, selectedId, setStatusMessage, updateDiagram]);
 
-    const layoutClass = isRecentOpen ? "grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[200px_minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]" : "grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]";
+    const handleSplitRatioChange = (value: number) => {
+        setSplitRatio(value);
+        localStorage.setItem(STORAGE_KEY_RATIO, String(value));
+    };
 
     const handleApiKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
         setApiKey(event.target.value);
@@ -333,34 +362,40 @@ export default function App() {
     return (
         <div className="min-h-screen text-slate-100 bg-surface">
             <div className="flex h-screen flex-col px-5 pb-6 pt-6 lg:px-10">
-                <div className={`grid flex-1 min-h-0 gap-4 ${layoutClass}`}>
-                    {isRecentOpen && (
-                        <div className="hidden lg:block min-h-0">
+                <div className="flex min-h-0 flex-1">
+                    {isDesktop && isRecentOpen && (
+                        <div className="mr-4 hidden min-h-0 w-[200px] shrink-0 lg:block">
                             <RecentBar diagrams={diagrams} selectedId={selectedId} onSelect={loadDiagram} />
                         </div>
                     )}
 
-                    <EditorPanel
-                        apiKey={apiKey}
-                        onApiKeyChange={handleApiKeyChange}
-                        title={title}
-                        mermaidText={mermaidText}
-                        onTitleChange={setTitle}
-                        onMermaidChange={setMermaidText}
-                        onSave={saveDiagram}
-                        onDelete={deleteDiagram}
-                        onNew={resetEditor}
-                        onRefresh={() => fetchDiagrams(false)}
-                        onToggleRecent={toggleRecent}
-                        isBusy={isBusy}
-                        hasApiKey={hasApiKey}
-                        isRecentOpen={isRecentOpen}
-                        selectedId={selectedId}
-                        lastAutoSave={lastAutoSave}
-                        status={status}
+                    <ResizableSplit
+                        orientation={splitOrientation}
+                        ratio={splitRatio}
+                        onRatioChange={handleSplitRatioChange}
+                        editor={
+                            <EditorPanel
+                                apiKey={apiKey}
+                                onApiKeyChange={handleApiKeyChange}
+                                title={title}
+                                mermaidText={mermaidText}
+                                onTitleChange={setTitle}
+                                onMermaidChange={setMermaidText}
+                                onSave={saveDiagram}
+                                onDelete={deleteDiagram}
+                                onNew={resetEditor}
+                                onRefresh={() => fetchDiagrams(false)}
+                                onToggleRecent={toggleRecent}
+                                isBusy={isBusy}
+                                hasApiKey={hasApiKey}
+                                isRecentOpen={isRecentOpen}
+                                selectedId={selectedId}
+                                lastAutoSave={lastAutoSave}
+                                status={status}
+                            />
+                        }
+                        preview={<PreviewPanel id="editor-preview" chart={mermaidText} />}
                     />
-
-                    <PreviewPanel id="editor-preview" chart={mermaidText} />
                 </div>
             </div>
 
