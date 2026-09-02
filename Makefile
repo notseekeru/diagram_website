@@ -61,6 +61,18 @@ prod-logs:
 prod-down:
 	$(PROD_CMD) down -v
 
+prod-scan: prod-build
+	@echo '**--- Trivy image scan: diagram-prod-<service> ---**'
+	for img in frontend backend; do \
+		echo "== scanning diagram-prod-$$img =="; \
+		docker run --rm \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			-v $(CURDIR)/$$img/.trivyignore.yaml:/.trivyignore.yaml \
+			aquasec/trivy:0.74.0 image \
+			--severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+			--ignorefile /.trivyignore.yaml \
+			diagram-prod-$$img; \
+	done
 prod-migrate-up:
 	@if [ -z "$(DB_URL)" ]; then \
 		echo "ERROR: DB_URL is required. Usage: make prod-migrate-up DB_URL='postgresql://doadmin:pass@host:25060/diagramdb?sslmode=require'"; \
