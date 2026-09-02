@@ -126,11 +126,7 @@ export default function EditorPanel({ apiKey, onApiKeyChange, title, mermaidText
                     <label className="flex flex-col flex-1 min-h-0 text-[11px] uppercase tracking-[0.2em] text-muted">
                         Mermaid source
                         <span className="mt-1.5 flex min-h-0 flex-1 overflow-hidden rounded-xl border border-border bg-surface/70 transition focus-within:border-accent/60 focus-within:ring-2 focus-within:ring-accent/30">
-                            <pre
-                                ref={gutterRef}
-                                aria-hidden="true"
-                                className="w-12 shrink-0 select-none overflow-hidden py-3 pr-2 text-right font-mono text-xs leading-6 text-muted"
-                            >
+                            <pre ref={gutterRef} aria-hidden="true" className="w-12 shrink-0 select-none overflow-hidden py-3 pr-2 text-right font-mono text-xs leading-6 text-muted">
                                 {lineNumbers}
                             </pre>
                             <textarea

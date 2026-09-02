@@ -17,10 +17,10 @@ const HANDLE = 16; // px width/height of the draggable divider
 /** Small centered grip dots that read as "draggable" regardless of orientation. */
 function Grip() {
     return (
-        <div className="flex items-center justify-center gap-[3px]">
-            {Array.from({ length: 3 }).map((_, i) => (
-                <span key={i} className="inline-block h-[3px] w-[3px] rounded-full bg-current text-accentSecondary opacity-80 transition group-hover:text-accent group-hover:opacity-100" />
-            ))}
+        <div className="flex items-center justify-center gap-[3px]" aria-hidden="true">
+            <span className="inline-block h-[3px] w-[3px] rounded-full bg-current text-accentSecondary opacity-80 transition group-hover:text-accent group-hover:opacity-100" />
+            <span className="inline-block h-[3px] w-[3px] rounded-full bg-current text-accentSecondary opacity-80 transition group-hover:text-accent group-hover:opacity-100" />
+            <span className="inline-block h-[3px] w-[3px] rounded-full bg-current text-accentSecondary opacity-80 transition group-hover:text-accent group-hover:opacity-100" />
         </div>
     );
 }
@@ -34,10 +34,7 @@ export default function ResizableSplit({ orientation, ratio, onRatioChange, edit
     const containerRef = useRef<HTMLDivElement>(null);
     const row = orientation === "row";
 
-    const clampRatio = useCallback(
-        (value: number) => Math.min(MAX_RATIO, Math.max(MIN_RATIO, value)),
-        [],
-    );
+    const clampRatio = useCallback((value: number) => Math.min(MAX_RATIO, Math.max(MIN_RATIO, value)), []);
 
     const handleMove = useCallback(
         (event: React.PointerEvent<HTMLDivElement>) => {
@@ -75,18 +72,19 @@ export default function ResizableSplit({ orientation, ratio, onRatioChange, edit
     };
     const dividerStyle = row ? { width: HANDLE } : { height: HANDLE };
     return (
-        <div
-            ref={containerRef}
-            id="editor-preview-split"
-            className="group flex min-h-0 min-w-0 flex-1"
-            style={{ flexDirection: row ? "row" : "column" }}
-        >
+        <div ref={containerRef} id="editor-preview-split" className="group flex min-h-0 min-w-0 flex-1" style={{ flexDirection: row ? "row" : "column" }}>
             <div style={editorStyle}>{editor}</div>
 
+            {/* biome-ignore lint/a11y/useSemanticElements: static <hr> can't host
+               pointer/keyboard handlers of an interactive resizable divider. */}
             <div
                 role="separator"
                 aria-orientation={row ? "vertical" : "horizontal"}
                 aria-label="Resize editor and diagram panels"
+                aria-valuemin={MIN_RATIO}
+                aria-valuemax={MAX_RATIO}
+                aria-valuenow={ratio}
+                aria-valuetext={`${Math.round(ratio * 100)}% ${row ? "editor" : "editor height"}`}
                 tabIndex={0}
                 style={{ flexGrow: 0, flexShrink: 0, cursor: row ? "col-resize" : "row-resize", ...dividerStyle }}
                 className="flex touch-none select-none items-center justify-center outline-none focus:ring-0"
