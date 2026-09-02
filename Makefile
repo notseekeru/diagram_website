@@ -33,8 +33,18 @@ up: check-ports
 	$(DEV_CMD) up -d
 logs:
 	$(DEV_CMD) logs -f
-migrate-up:
+# Migrations (node-pg-migrate)
+migrate:
 	docker exec -t diagram_backend_dev npm run migrate:up
+
+migrate-up: migrate
+
+rollback:
+	docker exec -t diagram_backend_dev npm run migrate:down
+
+new-migration:
+	@test -n "$(name)" || (echo "usage: make new-migration name=<name>" && exit 1)
+	docker exec -t diagram_backend_dev npm run migrate:create --name $(name)
 
 # PROD
 prod-build:
