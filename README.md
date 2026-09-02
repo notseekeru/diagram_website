@@ -162,7 +162,7 @@ This runs `biome` lint, `tsc` typecheck, and `npm audit` for both apps. Beyond t
 ### Before you open a PR
 
 1. `make exec` passes (lint + typecheck + audit) on both services.
-2. CI mirrors this (see `.github/workflows/ci-pipeline.yml`), runs on PRs to `main`, and also runs a Trivy filesystem scan.
+2. CI mirrors this (see `.github/workflows/ci-pipeline.yml`), runs on PRs to `main`, and also runs a Trivy 0.74 filesystem scan gated on per-service dated `.trivyignore.yaml` (`--ignore-unfixed`, exceptions expire 2026-12-01).
 3. If your change touches the API, update [docs/api-auth.md](docs/api-auth.md) or [docs/api-pentest.md](docs/api-pentest.md) as appropriate.
 
 ## API
