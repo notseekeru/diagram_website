@@ -4,3 +4,6 @@ CVE-2026-59873   # tar: node-tar DoS via crafted gzip bomb (not installed in npm
 CVE-2026-59874   # tar: node-tar DoS via malformed archive header (not installed in npm tree or Alpine)
 CVE-2026-14257   # brace-expansion: DoS via malicious brace patterns (transitive via glob/node-pg-migrate, not an attack surface; tree already patched to 5.0.9/2.1.4)
 CVE-2026-69152   # brace-expansion: DoS via unbounded intermediate arrays (transitive via glob/node-pg-migrate, not an attack surface; tree already patched to 5.0.9/2.1.4)
+CVE-2026-14456   # openssl: QUIC-server memory-growth DoS (libcrypto3/libssl3 in node:alpine3.24 base). Runtime does not run a QUIC server (OTLP/http + pg client TLS only) so not exploitable.
+CVE-2026-66046   # expat: XML DoS <2.8.3 (node:alpine3.24 base). No XML parsing anywhere in this codebase; not reachable at runtime.
+CVE-2026-76641   # expat: XML DoS <2.8.3-2 (node:alpine3.24 base). No XML parsing anywhere in this codebase; not reachable at runtime.

@@ -6,3 +6,6 @@ CVE-2026-6732    # libxml2
 CVE-2026-13149   # brace-expansion: DoS via exponential-time complexity (transitive, not an attack surface)
 CVE-2026-59873   # tar: node-tar DoS via crafted gzip bomb (transitive, not an attack surface)
 CVE-2026-59874   # tar: node-tar DoS via malformed archive header (transitive, not an attack surface)
+CVE-2026-14456   # openssl: QUIC-server memory-growth DoS (libcrypto3/libssl3 in nginx alpine base). Not a QUIC server; not exploitable at runtime.
+CVE-2026-66046   # expat: XML DoS <2.8.3 (nginx alpine base). No untrusted XML parsing; not exploitable.
+CVE-2026-76641   # expat: XML DoS <2.8.3-2 (nginx alpine base). No untrusted XML parsing; not exploitable.
