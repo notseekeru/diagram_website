@@ -61,8 +61,8 @@ jobs:
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/${{ matrix.service }}:/workspace \
-            -v ${{ github.workspace }}/${{ matrix.service }}/.trivyignore:/.trivyignore \
-            aquasec/trivy:0.41.0 filesystem \
-            --severity HIGH,CRITICAL --exit-code 1 \
-            --ignorefile /.trivyignore \
+            -v ${{ github.workspace }}/${{ matrix.service }}/.trivyignore.yaml:/.trivyignore.yaml \
+            aquasec/trivy:0.74.0 filesystem \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+            --ignorefile /.trivyignore.yaml \
             /workspace

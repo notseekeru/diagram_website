@@ -28,7 +28,7 @@ RUN npm run build && npm prune --omit=dev
 # --- PROD NEW IMAGE // RUN AS NODE USER
 FROM node:lts-alpine3.24 AS prod
 
-RUN apk add --no-cache --upgrade musl musl-utils zlib
+RUN apk add --no-cache --upgrade --latest musl musl-utils zlib libcrypto3 libssl3 expat
 
 ENV NODE_ENV=production
 
