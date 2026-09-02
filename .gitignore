@@ -14,3 +14,7 @@ lgtm/loki-data/
 lgtm/tempo-data/
 lgtm/prometheus-data/
 lgtm/alertmanager-data/
+# --- Playwright MCP runtime artifacts ---
+.playwright-mcp/
+# --- nix build output symlink ---
+result
