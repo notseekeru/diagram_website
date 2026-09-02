@@ -23,6 +23,9 @@ down:
 	$(DEV_CMD) down
 	docker network remove obs-network || true
 
+clean:
+	$(DEV_CMD) down -v
+	docker network remove obs-network || true
 PORTS = 3100 5273 5432
 
 check-ports:
