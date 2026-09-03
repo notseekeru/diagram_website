@@ -1,69 +1,13 @@
 # Trivy ignore policy (v0.56+ / .trivyignore.yaml)
-# Each entry is a dated, scoped exception with a reachability rationale.
-# When `expired_at` passes, CI fails again until the entry is re-verified
-# (fixed by apk/base bump, or explicitly re-accepted). Keep entries short-lived.
+#
+# Empty by design: the prod image strips the base image's bundled global
+# npm + corepack (never invoked at runtime — the image boots `node` directly),
+# which removes the brace-expansion / ip-address / node-tar CVEs they carried.
+# The remaining OS + app/node_modules layers scan 0 HIGH/CRITICAL today.
+#
+# Dated, scoped exceptions with reachability rationale live here. When
+# `expired_at` passes, the CD/`make prod-scan` gate re-fails until each is
+# re-verified (fixed by base bump / dep upgrade, or explicitly re-accepted).
+# Keep entries short-lived; prefer a real fix over an exception.
 
-vulnerabilities:
-  # --- Alpine OS layer (node:lts-alpine3.24 base) ---
-  - id: CVE-2026-14456
-    purls:
-      - pkg:apk/alpine/libcrypto3
-      - pkg:apk/alpine/libssl3
-    statement: >-
-      OpenSSL QUIC-server memory-growth DoS. Backend runtime does not run a QUIC
-      server (OTLP/via HTTP + pg client TLS only), so the vulnerable code path is
-      not reachable. Re-check after the alpine base is bumped to 3.5.8+.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-66046
-    purls:
-      - pkg:apk/alpine/expat
-    statement: >-
-      expat XML DoS. Backend does no XML parsing, so not reachable at runtime.
-      Re-check after the alpine base ships expat >= 2.8.4.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-76641
-    purls:
-      - pkg:apk/alpine/expat
-    statement: >-
-      expat XML DoS (< 2.8.3-2). Backend does no XML parsing, so not reachable.
-      Re-check after the alpine base ships expat >= 2.8.4.
-    expired_at: 2026-12-01
-
-  # --- npm tree: transitive, no reachable call path ---
-  - id: CVE-2026-12151
-    statement: >-
-      undici unbounded-memory DoS over WebSocket. Backend does not use a
-      WebSocket client/server. Re-check if undici/websocket usage is added.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-13149
-    statement: >-
-      brace-expansion exponential-time DoS (transitive via glob/rimraf, build-time
-      only). Not on the runtime request path. 
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-14257
-    statement: >-
-      brace-expansion DoS via brace patterns (transitive via glob/node-pg-migrate.
-      No attacker-controlled brace pattern reaches it at runtime).
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-69152
-    statement: >-
-      brace-expansion DoS via unbounded intermediate arrays (transitive via
-      glob/node-pg-migrate; no attacker-controlled brace input reaches it).
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-59873
-    statement: >-
-      node-tar DoS via crafted gzip bomb. tar is not installed in the backend
-      npm tree (transitive ref only). Re-verify on next full-scan.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-59874
-    statement: >-
-      node-tar DoS via malformed archive header. tar is not installed in the
-      backend npm tree. Re-verify on next full-scan.
-    expired_at: 2026-12-01
+vulnerabilities: []
