@@ -1,89 +1,13 @@
 # Trivy ignore policy (v0.56+ / .trivyignore.yaml)
-# Each entry is a dated, scoped exception with a reachability rationale.
-# When `expired_at` passes, CI fails again until the entry is re-verified
-# (fixed by apk/base bump, or explicitly re-accepted). Keep entries short-lived.
+#
+# Empty by design: the shipping artifact is an nginx-unprivileged Debian
+# image serving a static bundle, which currently scans 0 HIGH/CRITICAL
+# findings (last verified against :1.31.4). Prior alpine apk/* OS purls and
+# never-shipped npm devDeps no longer apply.
+#
+# Dated, scoped exceptions with reachability rationale live here. When
+# `expired_at` passes, the CD/`make prod-scan` gate re-fails until each is
+# re-verified (fixed by base bump / dep upgrade, or explicitly re-accepted).
+# Keep entries short-lived; prefer a base bump over an exception.
 
-vulnerabilities:
-  # --- Alpine OS layer (nginx-unprivileged alpine base) ---
-  - id: CVE-2026-14456
-    purls:
-      - pkg:apk/alpine/libcrypto3
-      - pkg:apk/alpine/libssl3
-    statement: >-
-      OpenSSL QUIC-server memory-growth DoS. Frontend serves static files via
-      nginx (TLS termination), no QUIC server, so the vulnerable path is not
-      reachable. Re-check after the nginx-alpine base is bumped to a release
-      shipping openssl 3.5.8+.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-66046
-    purls:
-      - pkg:apk/alpine/expat
-    statement: >-
-      expat XML DoS. Frontend does not parse untrusted XML. Re-check after the
-      nginx-alpine base ships expat >= 2.8.4.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-76641
-    purls:
-      - pkg:apk/alpine/expat
-    statement: >-
-      expat XML DoS (< 2.8.3-2). Frontend does not parse untrusted XML.
-      Re-check after the nginx-alpine base ships expat >= 2.8.4.
-    expired_at: 2026-12-01
-
-  # --- Alpine OS layer: other base libraries ---
-  - id: CVE-2026-40200
-    purls:
-      - pkg:apk/alpine/musl
-    statement: >-
-      musl DoS in the nginx-alpine base. Reachability not established for the
-      static-file serving role. Re-check on next base bump.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-22184
-    purls:
-      - pkg:apk/alpine/zlib
-    statement: >-
-      zlib DoS in the nginx-alpine base. Re-check on next base bump.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-27135
-    purls:
-      - pkg:apk/alpine/nghttp2
-    statement: >-
-      nghttp2 DoS in the nginx-alpine base. Re-check on next base bump.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-6732
-    purls:
-      - pkg:apk/alpine/libxml2
-    statement: >-
-      libxml2 issue in the nginx-alpine base. Frontend does not process XML.
-      Re-check on next base bump.
-    expired_at: 2026-12-01
-
-  # --- npm tree: transitive, no reachable call path ---
-  - id: CVE-2026-33671
-    statement: >-
-      picomatch DoS. Build-time glob matching only (devDependency), not served
-      content. Re-check if a picomatch-protected filter is added to runtime.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-13149
-    statement: >-
-      brace-expansion exponential-time DoS (transitive via glob, build-only).
-      Not on the request path.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-59873
-    statement: >-
-      node-tar DoS via crafted gzip bomb. tar is not installed in the frontend
-      production npm tree. Re-verify on next full-scan.
-    expired_at: 2026-12-01
-
-  - id: CVE-2026-59874
-    statement: >-
-      node-tar DoS via malformed archive header. tar is not installed in the
-      frontend production npm tree. Re-verify on next full-scan.
-    expired_at: 2026-12-01
+vulnerabilities: []
