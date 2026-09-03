@@ -82,30 +82,30 @@ The `.env.example` files ship with sane defaults — for local dev the only requ
 
 ### Backend (`backend/.env`)
 
-| Variable | Default | Purpose |
-| -------- | ------- | ------- |
-| `API_KEY` | *(required)* | Shared secret validated via `X-API-Key` header |
-| `DATABASE_URL` | `postgres://diagram:diagram@postgres:5432/diagramdb` | Postgres connection string |
-| `PORT` | `3100` | HTTP port |
-| `NODE_ENV` | `chaos` | `chaos` disables rate limiting (chaos tests) |
-| `TRUST_PROXY_HOPS` | `0` | Proxy hops for `trust proxy` |
-| `FRONTEND_ORIGINS` | `http://localhost:5273,https://diagram.seekeru.tech` | CORS origins |
-| `OTEL_*` | *see `.env.example`* | OpenTelemetry exporter config |
+| Variable           | Default                                              | Purpose                                        |
+| ------------------ | ---------------------------------------------------- | ---------------------------------------------- |
+| `API_KEY`          | _(required)_                                         | Shared secret validated via `X-API-Key` header |
+| `DATABASE_URL`     | `postgres://diagram:diagram@postgres:5432/diagramdb` | Postgres connection string                     |
+| `PORT`             | `3100`                                               | HTTP port                                      |
+| `NODE_ENV`         | `chaos`                                              | `chaos` disables rate limiting (chaos tests)   |
+| `TRUST_PROXY_HOPS` | `0`                                                  | Proxy hops for `trust proxy`                   |
+| `FRONTEND_ORIGINS` | `http://localhost:5273,https://diagram.seekeru.tech` | CORS origins                                   |
+| `OTEL_*`           | _see `.env.example`_                                 | OpenTelemetry exporter config                  |
 
 ### Frontend (`frontend/.env`)
 
-| Variable | Default | Purpose |
-| -------- | ------- | ------- |
-| `VITE_BACKEND_URL` | *(empty)* | API base URL; empty = same-origin (`/api`) |
+| Variable                  | Default                           | Purpose                                          |
+| ------------------------- | --------------------------------- | ------------------------------------------------ |
+| `VITE_BACKEND_URL`        | _(empty)_                         | API base URL; empty = same-origin (`/api`)       |
 | `DEVELOPMENT_BACKEND_URL` | `http://diagram_backend_dev:3100` | Reserved for dev proxies (`docker exec` context) |
 
 ### lgtm (`lgtm/.env`)
 
-| Variable | Default | Purpose |
-| -------- | ------- | ------- |
-| `GRAFANA_PASSWORD` | `grafana` | Grafana admin password |
-| `HOSTNAME` | `seeker` | Host identity for labels |
-| `ALERTMANAGER_SLACK_WEBHOOK` | *(empty)* | Slack alert notifications |
+| Variable                     | Default   | Purpose                   |
+| ---------------------------- | --------- | ------------------------- |
+| `GRAFANA_PASSWORD`           | `grafana` | Grafana admin password    |
+| `HOSTNAME`                   | `seeker`  | Host identity for labels  |
+| `ALERTMANAGER_SLACK_WEBHOOK` | _(empty)_ | Slack alert notifications |
 
 ## Prerequisites
 
@@ -126,6 +126,7 @@ make up          # start the dev stack (frontend + backend + postgres)
 ```
 
 Both services run with hot reload:
+
 - **Frontend** — Vite dev server on `:5273`; edit `frontend/src/**` and it reloads.
 - **Backend** — `tsx watch` on `:3100`; edit `backend/src/**` and it restarts.
 
@@ -185,11 +186,6 @@ Frontend and backend share a Docker network. Nginx serves the SPA and proxies `/
 ```bash
 docker compose -f compose.prod.yml build
 docker compose -f compose.prod.yml up -d
-```
-
-For DigitalOcean managed DBs, grant schema permissions before the first migration:
-```bash
-make prod-migrate-up DB_URL='postgresql://user:pass@host:25060/db?sslmode=require'
 ```
 
 Set `VITE_BACKEND_URL=` (empty) in `frontend/.env` for same-origin API calls in prod. See the `.env.example` files for rationale.
