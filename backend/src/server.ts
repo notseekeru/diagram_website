@@ -3,6 +3,7 @@ import cors from "cors";
 import express, { type NextFunction, type Request, type Response, Router } from "express";
 import rateLimit from "express-rate-limit";
 import { pool } from "./db.js";
+import { validMermaid, validUuid } from "./validate.js";
 
 const PORT = Number(process.env.PORT ?? 3100);
 const API_KEY = process.env.API_KEY ?? "";
@@ -16,13 +17,6 @@ type DiagramRow = {
     updated_at: string;
 };
 
-const validUuid = (v: unknown): v is string => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v);
-
-const validMermaid = (v: unknown): v is string => {
-    if (typeof v !== "string") return false;
-    const trimmed = v.trim();
-    return trimmed.length >= 1 && trimmed.length <= 10_000;
-};
 
 const logErr = (error: unknown) =>
     console.error(
