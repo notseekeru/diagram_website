@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@mermaid-js/layout-elk": "0.2.2",
-        "axios": "1.18.1",
+        "axios": "1.20.0",
         "mermaid": "11.17.2",
         "react": "19.2.7",
         "react-dom": "19.2.7",
