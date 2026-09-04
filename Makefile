@@ -15,6 +15,7 @@ lint:
 	docker exec -t diagram_backend_dev sh -c "npm run lint"
 
 test:
+	docker exec -t diagram_frontend_dev sh -c "npm run test"
 	docker exec -t diagram_backend_dev sh -c "npm run test"
 # DEV
 build:
