@@ -26,7 +26,7 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 | **Database**      | PostgreSQL 16 (containerized)                                        |
 | **Infra**         | Docker Compose (dev + prod), nginx (prod)                            |
 | **Observability** | OpenTelemetry, Grafana, Prometheus, Loki, Tempo, Alloy, Alertmanager |
-| **Testing**       | Vitest (jsdom on frontend), @testing-library/react      |
+| **Testing**       | Vitest (jsdom on frontend), @testing-library/react                   |
 
 ## Project Structure
 
@@ -201,7 +201,7 @@ Deploying to a non-DigitalOcean host, or want the CI/CD pipeline? See `.github/w
 
 ## Development & Testing
 
-```bash
+````bash
 make test         # vitest single run (frontend + backend)
 make lint         # biome lint (frontend + backend)
 make exec         # full self-check: test + lint + typecheck + audit + prune
@@ -214,7 +214,7 @@ make chaos-sh   # shell-based fault injection & robustness tests
 make chaos-py   # Python-based chaos tests
 make locust     # interactive Locust load test (UI on :8089)
 make locust-csv # headless 5-min load test → results.csv
-```
+````
 
 ## License
 
