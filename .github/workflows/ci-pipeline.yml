@@ -54,6 +54,14 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Test
+        run: |
+          if npm pkg get scripts.test >/dev/null 2>&1; then
+            npm run test
+          else
+            echo "no test script defined; skipping"
+          fi
+
       - name: Audit (informational)
         run: npm audit --audit-level=moderate || true
 
