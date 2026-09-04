@@ -15,6 +15,7 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 - **REST API** with API-key auth, UUID validation, and rate limiting
 - **Full observability** — traces, logs, metrics, and alerting (Grafana / Loki / Tempo / Prometheus / Alloy / Alertmanager)
 - **Chaos & security tooling** — fault injection, load testing (Locust), API pentest script
+- **Automated tests** — Vitest unit + smoke suites for backend and frontend (`make test`, CI)
 
 ## Stack
 
@@ -25,6 +26,7 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 | **Database**      | PostgreSQL 16 (containerized)                                        |
 | **Infra**         | Docker Compose (dev + prod), nginx (prod)                            |
 | **Observability** | OpenTelemetry, Grafana, Prometheus, Loki, Tempo, Alloy, Alertmanager |
+| **Testing**       | Vitest (jsdom on frontend), @testing-library/react      |
 
 ## Project Structure
 
@@ -33,12 +35,15 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 │   ├── src/
 │   │   ├── App.tsx          main app with autosave logic
 │   │   ├── components/      EditorPanel, PreviewPanel, RecentBar
+│   │   ├── App.test.tsx       vitest smoke render of <App/>
+│   │   ├── test/setup.ts       jsdom shims (matchMedia, ResizeObserver)
 │   │   └── types.ts
 │   ├── nginx.conf           prod: reverse proxies /api/ → backend
 │   └── Dockerfile           multi-stage: dev (Vite) + prod (nginx)
 ├── backend/           Express API server
 │   ├── src/server.ts        routes, CORS, rate limit, shutdown
 │   ├── migrations/          Postgres schema (001_create_diagrams)
+│   ├── test/                vitest unit tests (validators)
 │   └── Dockerfile           multi-stage: dev (tsx watch) + prod (compiled)
 ├── lgtm/              Observability stack (Grafana / Loki / Tempo / Alloy / Prometheus / Alertmanager)
 ├── compose.dev.yml    Dev environment
@@ -50,12 +55,13 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 │   ├── locust.py
 │   ├── api-pentest.sh
 │   └── port-claimer.sh
-├── Makefile            Dev/prod/chaos/lgtm targets
-└── docs/              Auth, chaos, SLO, pentest, traffic docs
+├── Makefile            Dev/prod/chaos/lgtm/test targets
+└── docs/              Auth, testing, chaos, SLO, pentest, traffic docs
     ├── api-auth.md
     ├── api-pentest.md
     ├── chaos-*.md
     ├── slo.md
+    ├── testing.md
     └── traffic.md
 ```
 
@@ -144,15 +150,16 @@ docker exec -t diagram_backend_dev npm run migrate:down
 
 Migrations live in `backend/migrations/` (see `001_create_diagrams.js`). The pool config (timeouts, sizing) is in `backend/src/db.ts`.
 
-### Verifying changes (there are no automated tests)
+### Verifying changes (automated tests)
 
-> **Important:** this repo currently has **no automated test suite** — neither `frontend/package.json` nor `backend/package.json` defines a `test` script. Verification is manual.
+Automated unit/smoke tests run through Vitest and are wired into the Makefile and CI:
 
 ```bash
-make exec   # full self-check on both services: lint + typecheck + npm audit + prune
+make test   # vitest single run on both services (frontend + backend)
+make exec   # full self-check on both services: test + lint + typecheck + npm audit + prune
 ```
 
-This runs `biome` lint, `tsc` typecheck, and `npm audit` for both apps. Beyond that, verify behavior manually against the API (see [docs/api-auth.md](docs/api-auth.md)) and the UI at `http://localhost:5273`.
+`make test` runs the backend validator suite and the frontend `<App/>` smoke render (see [docs/testing.md](docs/testing.md)). Beyond that, verify behavior manually against the API (see [docs/api-auth.md](docs/api-auth.md)) and the UI at `http://localhost:5273`.
 
 ### Code style
 
@@ -162,8 +169,8 @@ This runs `biome` lint, `tsc` typecheck, and `npm audit` for both apps. Beyond t
 
 ### Before you open a PR
 
-1. `make exec` passes (lint + typecheck + audit) on both services.
-2. CI mirrors this (see `.github/workflows/ci-pipeline.yml`), runs on PRs to `main`. CD runs a single Trivy 0.74 image scan per service against the actual shipping artifact (gated on per-service `.trivyignore.yaml`, `--ignore-unfixed`, exceptions expire 2026-12-01); the earlier source-tree filesystem scan was dropped as redundant. `npm audit` is informational only.
+1. `make test` and `make exec` pass on both services (tests + lint + typecheck + audit).
+2. CI mirrors this (see `.github/workflows/ci-pipeline.yml`): lint, typecheck, build, audit, plus a `Test` step that runs `npm run test` on a service when it defines a test script — all on PRs to `main`. CD runs a single Trivy 0.74 image scan per service against the actual shipping artifact (gated on per-service `.trivyignore.yaml`, `--ignore-unfixed`, exceptions expire 2026-12-01); the earlier source-tree filesystem scan was dropped as redundant. `npm audit` is informational only.
 3. If your change touches the API, update [docs/api-auth.md](docs/api-auth.md) or [docs/api-pentest.md](docs/api-pentest.md) as appropriate.
 
 ## API
@@ -195,10 +202,10 @@ Deploying to a non-DigitalOcean host, or want the CI/CD pipeline? See `.github/w
 ## Development & Testing
 
 ```bash
-make lint          # biome lint (frontend + backend)
-make exec          # full self-check: lint + typecheck + audit + prune
-make check-ports   # verify 3100/5273/5432 are free
-```
+make test         # vitest single run (frontend + backend)
+make lint         # biome lint (frontend + backend)
+make exec         # full self-check: test + lint + typecheck + audit + prune
+make check-ports  # verify 3100/5273/5432 are free
 
 Chaos / load / security tooling ships in `scripts/`:
 
