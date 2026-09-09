@@ -70,7 +70,7 @@ services:
 
   # v1.16.1
   alloy:
-    image: grafana/alloy:v1.16.1
+    image: grafana/alloy:v1.19.2@sha256:b8ec653c44235fbe910879145dac3597d66b0aaecf60bcbbe82580767771a839
     container_name: alloy
     # If running windows, you may need to adjust the user/group IDs or run without user restrictions
     # user: "10001:10001"
