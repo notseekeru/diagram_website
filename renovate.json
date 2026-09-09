@@ -1,0 +1,39 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    "group:monorepos",
+    "group:recommended",
+    "schedule:weekly"
+  ],
+  "labels": ["dependencies", "renovate"],
+  "prConcurrentLimit": 5,
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions dependencies",
+      "separateMajorMinor": false,
+      "description": "Bump all action refs (checkout@v6 etc.) in one PR."
+    },
+    {
+      "matchManagers": ["npm"],
+      "groupName": "frontend npm dependencies"
+    },
+    {
+      "matchManagers": ["uv", "pep621"],
+      "groupName": "backend python dependencies"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "groupName": "Docker base images",
+      "separateMajorMinor": true,
+      "description": "Pin + refresh base image digests to resolve base-OS CVEs."
+    }
+  ],
+  "docker": {
+    "pinDigests": true,
+    "major": { "enabled": true }
+  }
+}
