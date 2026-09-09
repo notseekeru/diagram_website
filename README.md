@@ -23,7 +23,7 @@ Mermaid diagram editor with autosave, ELK layout, PostgreSQL persistence, and fu
 | ----------------- | -------------------------------------------------------------------- |
 | **Frontend**      | React 19, Mermaid.js 11, Axios, Tailwind, Vite 8, TypeScript 7       |
 | **Backend**       | Express 5, pg (PostgreSQL), cors, express-rate-limit                 |
-| **Database**      | PostgreSQL 16 (containerized)                                        |
+| **Database**      | PostgreSQL 18 (containerized)                                        |
 | **Infra**         | Docker Compose (dev + prod), nginx (prod)                            |
 | **Observability** | OpenTelemetry, Grafana, Prometheus, Loki, Tempo, Alloy, Alertmanager |
 | **Testing**       | Vitest (jsdom on frontend), @testing-library/react                   |
