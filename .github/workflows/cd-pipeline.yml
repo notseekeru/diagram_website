@@ -35,7 +35,7 @@ jobs:
             health_endpoint: /healthz
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set image name
         run: echo "IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service.image_suffix }}" >> $GITHUB_ENV
@@ -55,7 +55,7 @@ jobs:
 
       # Build for smoke test (single‑arch, load into daemon)
       - name: Build local image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
@@ -102,7 +102,7 @@ jobs:
         run: curl -fsS http://127.0.0.1:${{ matrix.service.port }}${{ matrix.service.health_endpoint }} >/dev/null
 
       - name: Push multi‑arch image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
@@ -147,7 +147,7 @@ jobs:
         run: git clone git@github.com:notseekeru/gitops.git
 
       - name: Setup Kustomize
-        uses: imranismail/setup-kustomize@v2
+        uses: imranismail/setup-kustomize@v3
 
       - name: Update Image Tags
         run: |
