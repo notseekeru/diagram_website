@@ -17,7 +17,6 @@ type DiagramRow = {
     updated_at: string;
 };
 
-
 const logErr = (error: unknown) =>
     console.error(
         JSON.stringify({
