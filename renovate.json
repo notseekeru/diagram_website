@@ -12,6 +12,15 @@
   "prConcurrentLimit": 5,
   "packageRules": [
     {
+      "matchCategories": [
+        "docker"
+      ],
+      "pinDigests": true,
+      "major": {
+        "enabled": true
+      }
+    },
+    {
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions dependencies",
       "separateMajorMinor": false,
@@ -31,9 +40,5 @@
       "separateMajorMinor": true,
       "description": "Pin + refresh base image digests to resolve base-OS CVEs."
     }
-  ],
-  "docker": {
-    "pinDigests": true,
-    "major": { "enabled": true }
-  }
+  ]
 }
