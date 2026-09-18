@@ -1,5 +1,5 @@
 # --- BASE IMAGE FOR BACKEND
-FROM node:lts-alpine3.24 AS base
+FROM node:lts-alpine3.24@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS base
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ FROM base AS prune
 RUN npm run build && npm prune --omit=dev
 
 # --- PROD NEW IMAGE // RUN AS NODE USER
-FROM node:lts-alpine3.24 AS prod
+FROM node:lts-alpine3.24@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS prod
 
 # Strip the base image's bundled global npm + corepack (dead weight in
 # this image: prod boots node directly, never the npm CLI). Removing
