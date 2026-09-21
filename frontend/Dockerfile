@@ -1,5 +1,5 @@
 # --- BASE IMAGE FOR FRONTEND
-FROM node:lts-alpine3.24 AS base
+FROM node:lts-alpine3.24@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS base
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ FROM base AS builder
 RUN npm run build
 
 # --- PROD AS NGINX UNPRIVILEGED
-FROM nginxinc/nginx-unprivileged:1.31.5 AS prod
+FROM nginxinc/nginx-unprivileged:1.31.6@sha256:31e97ebaac04c19c8e7da6012c5776e86a4414695565200719d6113cb68d0b78 AS prod
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
