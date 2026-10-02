@@ -8,6 +8,10 @@
     "group:recommended",
     "schedule:weekly"
   ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "description": "Renovate proposes no update for unbounded >= floors, so the lock otherwise moves only when a human edits pyproject.toml."
+  },
   "labels": ["dependencies", "renovate"],
   "prConcurrentLimit": 5,
   "packageRules": [
