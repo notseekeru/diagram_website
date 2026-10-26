@@ -41,7 +41,7 @@ services:
       - obs-network
 
   postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:v0.19.1
+    image: prometheuscommunity/postgres-exporter:v0.20.1@sha256:ac5ec343104fae0e2d84a27bb8d69b38430a11910c5382cad85d478d2bab713e
     container_name: postgres_exporter
     environment:
       DATA_SOURCE_URI: "diagram_postgres:5432/diagramdb?sslmode=disable"
