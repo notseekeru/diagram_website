@@ -17,7 +17,7 @@ services:
 
   # v13.0.1
   grafana:
-    image: grafana/grafana:13.0.1
+    image: grafana/grafana:13.3.0@sha256:488984b716c0862639f91a698adbe2862677a5a07bad42da5f03f3030883b205
     container_name: grafana
     ports:
       - "3001:3000"
