@@ -1,7 +1,7 @@
 services:
   # v3.7.1
   loki:
-    image: grafana/loki:3.7.1
+    image: grafana/loki:3.7.10@sha256:b43c257ccfc925d4a50b8717cac61a3b51df8c48d01847936057e5c4075a24a7
     container_name: loki
     shm_size: "512m"
     ports:
